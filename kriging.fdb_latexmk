@@ -1,10 +1,10 @@
 # Fdb version 3
-["xdvipdfmx"] 1607972458 "kriging.xdv" "kriging.pdf" "kriging" 1607972484
-  "kriging.xdv" 1607972457 46544 5e4d864da9665a02958da825e50c2c6e "xelatex"
+["xdvipdfmx"] 1607974882 "kriging.xdv" "kriging.pdf" "kriging" 1607974921
+  "kriging.xdv" 1607974882 65360 6e05c0f69dedbbfd49138b2de04a2477 "xelatex"
   (generated)
   "kriging.pdf"
-["xelatex"] 1607972455 "/Users/callumarnold/Documents/Repos/math-notes/kriging.tex" "kriging.xdv" "kriging" 1607972484
-  "/Users/callumarnold/Documents/Repos/math-notes/kriging.tex" 1607972483 6174 54582ed10ed010c124e548bae1646140 ""
+["xelatex"] 1607974880 "/Users/callumarnold/Documents/Repos/math-notes/kriging.tex" "kriging.xdv" "kriging" 1607974921
+  "/Users/callumarnold/Documents/Repos/math-notes/kriging.tex" 1607974920 8311 36845cd4c9d6fc6d1118565df478d54e ""
   "/usr/local/texlive/2020/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/zapfding/pzdr.tfm" 1136768653 1528 f853c4d1b4e0550255e02831fdc8496f ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmmi12.tfm" 1136768653 1524 4414a8315f39513458b80dfc63bff03a ""
@@ -176,11 +176,11 @@
   "/usr/local/texlive/2020/texmf-var/web2c/xetex/xelatex.fmt" 1594846049 4769630 82c1b0636c710c190d47dd14a4585dd2 ""
   "/usr/local/texlive/2020/texmf.cnf" 1586288231 577 d60164b4589a341208aff7a667fbbdcb ""
   "figs/semivariogram-models.png" 1607964883 50745 41c9eb79e9d5104acf026253f263750d ""
-  "kriging.aux" 1607972457 1676 4bcc5c07406ca4bf5af1961d91cdd13e "xelatex"
-  "kriging.out" 1607972457 383 8ec001236bd026db40d55bf7ed587a6e "xelatex"
-  "kriging.tex" 1607972483 6174 54582ed10ed010c124e548bae1646140 ""
+  "kriging.aux" 1607974882 1909 62f1d71777f912dfeb82f852043e99be "xelatex"
+  "kriging.out" 1607974882 503 0c5eeeb0be0eae75e88db1829d098fd2 "xelatex"
+  "kriging.tex" 1607974920 8311 36845cd4c9d6fc6d1118565df478d54e ""
   (generated)
-  "kriging.aux"
   "kriging.xdv"
   "kriging.out"
+  "kriging.aux"
   "kriging.log"
