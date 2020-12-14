@@ -1,3 +1,5 @@
 \BOOKMARK [1][-]{section.1}{Introduction}{}% 1
-\BOOKMARK [1][-]{section.2}{Creating\040a\040prediction\040map\040with\040kriging}{}% 2
-\BOOKMARK [2][-]{subsection.2.1}{Variography\040\(spatial\040modelling/structural\040analysis\)}{section.2}% 3
+\BOOKMARK [2][-]{subsection.1.1}{Assumptions\040in\040kriging}{section.1}% 2
+\BOOKMARK [1][-]{section.2}{Creating\040a\040prediction\040map\040with\040kriging}{}% 3
+\BOOKMARK [2][-]{subsection.2.1}{Variography\040\(spatial\040modelling/structural\040analysis\)}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.2}{Predictions}{section.2}% 5

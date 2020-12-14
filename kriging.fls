@@ -16,6 +16,13 @@ INPUT /usr/local/texlive/2020/texmf-dist/tex/generic/iftex/ifvtex.sty
 INPUT /usr/local/texlive/2020/texmf-dist/tex/generic/iftex/ifvtex.sty
 INPUT /usr/local/texlive/2020/texmf-dist/tex/generic/iftex/iftex.sty
 INPUT /usr/local/texlive/2020/texmf-dist/tex/generic/iftex/iftex.sty
+INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/microtype/microtype.sty
+INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/microtype/microtype.sty
+INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/microtype/microtype-xetex.def
+INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/microtype/microtype-xetex.def
+INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/microtype/microtype.cfg
+INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/microtype/microtype.cfg
+INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/microtype/microtype.cfg
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/graphics/graphicx.sty
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/graphics/graphicx.sty
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/graphics/graphics.sty
@@ -235,6 +242,8 @@ INPUT kriging.aux
 OUTPUT kriging.aux
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/base/ts1cmr.fd
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/base/ts1cmr.fd
+INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/microtype/mt-LatinModernRoman.cfg
+INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/microtype/mt-LatinModernRoman.cfg
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/hyperref/nameref.sty
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/hyperref/nameref.sty
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/refcount/refcount.sty
@@ -249,6 +258,8 @@ INPUT ./kriging.out
 INPUT ./kriging.out
 OUTPUT kriging.out
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmr12.tfm
+INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/microtype/mt-cmr.cfg
+INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/microtype/mt-cmr.cfg
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmr8.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmr6.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmmi12.tfm
@@ -261,6 +272,7 @@ INPUT /usr/local/texlive/2020/texmf-dist/tex/generic/stringenc/se-ascii-print.de
 INPUT /usr/local/texlive/2020/texmf-dist/tex/generic/stringenc/se-ascii-print.def
 INPUT /usr/local/texlive/2020/texmf-dist/tex/generic/stringenc/se-ascii-print.def
 OUTPUT kriging.xdv
+INPUT ./figs/semivariogram-models.png
 INPUT kriging.aux
 INPUT ./kriging.out
 INPUT ./kriging.out

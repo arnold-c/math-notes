@@ -1,10 +1,10 @@
 # Fdb version 3
-["xdvipdfmx"] 1607891661 "kriging.xdv" "kriging.pdf" "kriging" 1607891662
-  "kriging.xdv" 1607891661 39796 1ef8c79e2d241ee2e9f89a8ff95e00b8 "xelatex"
+["xdvipdfmx"] 1607972458 "kriging.xdv" "kriging.pdf" "kriging" 1607972484
+  "kriging.xdv" 1607972457 46544 5e4d864da9665a02958da825e50c2c6e "xelatex"
   (generated)
   "kriging.pdf"
-["xelatex"] 1607891659 "/Users/callumarnold/Documents/Repos/math-notes/kriging.tex" "kriging.xdv" "kriging" 1607891662
-  "/Users/callumarnold/Documents/Repos/math-notes/kriging.tex" 1607891658 3802 0e91fe240c86d22b9ccf62a59daa7809 ""
+["xelatex"] 1607972455 "/Users/callumarnold/Documents/Repos/math-notes/kriging.tex" "kriging.xdv" "kriging" 1607972484
+  "/Users/callumarnold/Documents/Repos/math-notes/kriging.tex" 1607972483 6174 54582ed10ed010c124e548bae1646140 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/zapfding/pzdr.tfm" 1136768653 1528 f853c4d1b4e0550255e02831fdc8496f ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmmi12.tfm" 1136768653 1524 4414a8315f39513458b80dfc63bff03a ""
@@ -149,6 +149,11 @@
   "/usr/local/texlive/2020/texmf-dist/tex/latex/kvoptions/kvoptions.sty" 1575152344 22520 c4c2dab203104295e1e618be7e5c0f5b ""
   "/usr/local/texlive/2020/texmf-dist/tex/latex/l3backend/l3backend-xdvipdfmx.def" 1584044900 24122 2811f916663c7ee4dc89a3107086b073 ""
   "/usr/local/texlive/2020/texmf-dist/tex/latex/letltxmacro/letltxmacro.sty" 1575499565 5766 13a9e8766c47f30327caf893ece86ac8 ""
+  "/usr/local/texlive/2020/texmf-dist/tex/latex/microtype/microtype-xetex.def" 1574121697 14109 448fe4388dde5981289f9ae8c547a196 ""
+  "/usr/local/texlive/2020/texmf-dist/tex/latex/microtype/microtype.cfg" 1574121697 24293 cbbba0a351268f01b03f4a3b8b367d3c ""
+  "/usr/local/texlive/2020/texmf-dist/tex/latex/microtype/microtype.sty" 1574121697 71539 3e8331ef062d90caeae5fc7360dcd5bf ""
+  "/usr/local/texlive/2020/texmf-dist/tex/latex/microtype/mt-LatinModernRoman.cfg" 1570829597 9832 c318e9b04f7eeaed0abe3ea0efa7f952 ""
+  "/usr/local/texlive/2020/texmf-dist/tex/latex/microtype/mt-cmr.cfg" 1570829597 22870 ec010715141eabee449fb667c425a676 ""
   "/usr/local/texlive/2020/texmf-dist/tex/latex/ms/everyshi.sty" 1177890616 3878 6aa7c08ff2621006e0603349e40a30a8 ""
   "/usr/local/texlive/2020/texmf-dist/tex/latex/pdftexcmds/pdftexcmds.sty" 1574631863 19963 36fd8e818f9f0f32e2db8413d4970122 ""
   "/usr/local/texlive/2020/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty" 1546728038 1090 d20f587ea9464d1841bd0d13d3ff9856 ""
@@ -170,11 +175,12 @@
   "/usr/local/texlive/2020/texmf-dist/web2c/texmf.cnf" 1583102494 39451 60d7debd9ef8ece44cbe965493576c2d ""
   "/usr/local/texlive/2020/texmf-var/web2c/xetex/xelatex.fmt" 1594846049 4769630 82c1b0636c710c190d47dd14a4585dd2 ""
   "/usr/local/texlive/2020/texmf.cnf" 1586288231 577 d60164b4589a341208aff7a667fbbdcb ""
-  "kriging.aux" 1607891661 1030 f0cd08169d50bfa948ea731064f6cac7 "xelatex"
-  "kriging.out" 1607891661 246 a4958c5fbfa76724e3ce73f9f865725c "xelatex"
-  "kriging.tex" 1607891658 3802 0e91fe240c86d22b9ccf62a59daa7809 ""
+  "figs/semivariogram-models.png" 1607964883 50745 41c9eb79e9d5104acf026253f263750d ""
+  "kriging.aux" 1607972457 1676 4bcc5c07406ca4bf5af1961d91cdd13e "xelatex"
+  "kriging.out" 1607972457 383 8ec001236bd026db40d55bf7ed587a6e "xelatex"
+  "kriging.tex" 1607972483 6174 54582ed10ed010c124e548bae1646140 ""
   (generated)
   "kriging.aux"
+  "kriging.xdv"
   "kriging.out"
   "kriging.log"
-  "kriging.xdv"

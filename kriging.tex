@@ -1,8 +1,9 @@
 \documentclass{article}
 \usepackage[margin=1.5cm]{geometry}
+\usepackage{microtype} % Slightly better kerning
 \usepackage{graphicx}
 \graphicspath{ {./figs/} }
-\usepackage[hidelinks]{hyperref}
+\usepackage[colorlinks=true]{hyperref}
 \setlength\parindent{0pt}
 
 \usepackage{array }% New env. for equation conditions where aligned
@@ -13,7 +14,7 @@
 \usepackage{tikz}
 \usepackage{pgfplots}
 
-\title{Kriging Notes}
+\title{Spatial Interpolation Notes}
 
 \begin{document}
 \maketitle
@@ -21,7 +22,7 @@
 \section{Introduction}
 
 \begin{center}
-    \fbox{Information from \href{https://desktop.arcgis.com/en/arcmap/10.3/tools/3d-analyst-toolbox/how-kriging-works.htm}{ARCGIS}}
+    \fbox{Information from \href{https://desktop.arcgis.com/en/arcmap/10.3/tools/3d-analyst-toolbox/how-kriging-works.htm}{ARCGIS} unless listed otherwise}
 \end{center}
 
 Kriging is a way to interpolate data and estimate a surface for geospatial data.
@@ -49,6 +50,29 @@ N & the number of measured values
 
 The difference between IDW and kriging is that in IDW, $\lambda_{i}$ only depends on distance to prediction location.
 In kriging $\lambda_{i}$ also depends on autocorrelation i.e. spatial relationship between prediction locations.
+
+\subsection{Assumptions in kriging}
+
+\begin{center}
+    \fbox{Information for subsection from \href{https://www.publichealth.columbia.edu/research/population-health-methods/kriging-interpolation}{Columbia}}    
+\end{center}
+
+For kriging to be used, there are a number of assumptions/conditions to be met.
+These conditions can be checked in exploratory data analysis.
+
+\begin{enumerate}
+    \item The data should be stationary
+    \begin{itemize}
+        \item Means that the joint probability distribution does not vary across the study space, so the same parameters (e.g. mean, range and sill etc) are valid across the space
+        \item Means one variogram is valid across the space
+    \end{itemize}
+    \item Assumption of isotropy
+    \begin{itemize}
+        \item Uniformity in all directions (semivariance identical in all directions)
+    \end{itemize}
+\end{enumerate}
+
+
 
 \section{Creating a prediction map with kriging}
 
@@ -82,33 +106,53 @@ Different types of models can be fit the the semivariogram:
     \item Linear
 \end{itemize}
 
-\begin{center}
-    \begin{tikzpicture}
-        \begin{axis}[
-            axis lines = left,
-            xlabel = $h$,
-            ylabel = {$\lambda(h)$},
-        ]
-        %Below the red parabola is defined
-        \addplot [
-            domain=-10:10, 
-            samples=100, 
-            color=red,
-        ]
-        {3*x/2 - 1/2 * x^3};
-        \addlegendentry{$\frac{3h}{2a} - \frac{1}{2}\left(\frac{h}{a}\right)^3$}
-        %Here the blue parabloa is defined
-        \addplot [
-            domain=-10:10, 
-            samples=100, 
-            color=blue,
-            ]
-            {x^2 + 2*x + 1};
-        \addlegendentry{$x^2 + 2x + 1$}
-        
-        \end{axis}
-    \end{tikzpicture}
-\end{center}
+\begin{figure}[h]
+    \centering
+    \caption{Different types of models used in spatial modelling \href{https://www.publichealth.columbia.edu/research/population-health-methods/kriging-interpolation}{(Poilou 2008)}. a) Linear semi-variogram; (b) spherical semi-variogram; (c) exponential semi-variogram; and (d) power semi-variogram}
+    \includegraphics[width=10cm]{semivariogram-models.png}
+\end{figure} 
 
+There are a number of key points on the figures:
+
+\begin{itemize}
+    \item Range
+    \begin{itemize}
+        \item The Range is the point at which the semivariance first levels off
+        \item Items within the range are autocorrelated (distance matters)
+        \item Items outside the range are not autocorrelated (distance no longer changes the semivariance)
+    \end{itemize}
+    \item Sill 
+    \begin{itemize}
+        \item The Sill is the height at which the semivariance levels off to
+    \end{itemize}
+    \item Nugget
+    \begin{itemize}
+        \item The minimum value of semivariance ($\gamma \left(h = 0\right)$)
+        \item Theoretically there is no semivariance when $h=0$, but in reality it is present due to measurement error or spatial sources of variation at distances smaller than the sample interval (or both)
+    \end{itemize}
+    \item Partial Sill
+    \begin{itemize}
+        \item Amount of semivariance between Sill and the Nugget
+    \end{itemize}
+\end{itemize}
+
+\subsection{Predictions}
+
+Now a model has been fit to the semivariance and autocorrelation can be observed, predictions can be made within the domain.
+Kriging differs from IWD as it uses the semivariogram to calculate the weights.
+There are two methods used in kriging:
+
+\begin{enumerate}
+    \item Ordinary kriging
+    \begin{itemize}
+        \item Assumes the constant mean is unknown
+    \end{itemize}
+    \item Universal kriging
+    \begin{itemize}
+        \item Assumes there's a prevailing trend
+        \item Trend is modelled with polynomial function, and subtracted from observed
+        \item Semivariogram is modelled on the residuals to produce autocorrelations
+    \end{itemize}
+\end{enumerate}
 
 \end{document}
