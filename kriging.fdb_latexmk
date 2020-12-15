@@ -1,12 +1,15 @@
 # Fdb version 3
-["xdvipdfmx"] 1607974882 "kriging.xdv" "kriging.pdf" "kriging" 1607974921
-  "kriging.xdv" 1607974882 65360 6e05c0f69dedbbfd49138b2de04a2477 "xelatex"
+["xdvipdfmx"] 1607997922 "kriging.xdv" "kriging.pdf" "kriging" 1607997923
+  "kriging.xdv" 1607997921 86168 12511dc5287834280aaa566a2b9425c4 "xelatex"
   (generated)
   "kriging.pdf"
-["xelatex"] 1607974880 "/Users/callumarnold/Documents/Repos/math-notes/kriging.tex" "kriging.xdv" "kriging" 1607974921
-  "/Users/callumarnold/Documents/Repos/math-notes/kriging.tex" 1607974920 8311 36845cd4c9d6fc6d1118565df478d54e ""
+["xelatex"] 1607997920 "/Users/callumarnold/Documents/Repos/math-notes/kriging.tex" "kriging.xdv" "kriging" 1607997923
+  "/Users/callumarnold/Documents/Repos/math-notes/kriging.tex" 1607997919 10942 a4771b033a29423e34f97a40b9f530ea ""
   "/usr/local/texlive/2020/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/zapfding/pzdr.tfm" 1136768653 1528 f853c4d1b4e0550255e02831fdc8496f ""
+  "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
+  "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1246382020 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
+  "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmex10.tfm" 1136768653 992 662f679a0b3d2d53c1b94050fdaa3f50 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmmi12.tfm" 1136768653 1524 4414a8315f39513458b80dfc63bff03a ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmmi6.tfm" 1136768653 1512 f21f83efb36853c0b70002322c1ab3ad ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/cm/cmmi8.tfm" 1136768653 1520 eccf95517727cb11801f4f1aee3a21b4 ""
@@ -127,6 +130,11 @@
   "/usr/local/texlive/2020/texmf-dist/tex/generic/stringenc/se-ascii-print.def" 1575152242 3257 357e44871446bf7a67d5b44617e25103 ""
   "/usr/local/texlive/2020/texmf-dist/tex/generic/stringenc/stringenc.sty" 1575152242 21514 b7557edcee22835ef6b03ede1802dad4 ""
   "/usr/local/texlive/2020/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty" 1576624663 7008 f92eaa0a3872ed622bbf538217cd2ab7 ""
+  "/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsbsy.sty" 1523134290 2211 ca7ce284ab93c8eecdc6029dc5ccbd73 ""
+  "/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsgen.sty" 1523134290 4161 7f6eb9092061a11f87d08ed13515b48d ""
+  "/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsmath.sty" 1580683321 85660 baee036978c7a91f4e2bba43f05e5945 ""
+  "/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsopn.sty" 1523134290 4116 32e6abd27229755a83a8b7f18e583890 ""
+  "/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amstext.sty" 1523134290 2432 8ff93b1137020e8f21930562a874ae66 ""
   "/usr/local/texlive/2020/texmf-dist/tex/latex/atveryend/atveryend.sty" 1576191570 19336 ce7ae9438967282886b3b036cfad1e4d ""
   "/usr/local/texlive/2020/texmf-dist/tex/latex/auxhook/auxhook.sty" 1576625391 3935 57aa3c3e203a5c2effb4d2bd2efbc323 ""
   "/usr/local/texlive/2020/texmf-dist/tex/latex/base/article.cls" 1580683321 20023 e427dd9e17e239bf926ef3aab67fe35e ""
@@ -175,12 +183,13 @@
   "/usr/local/texlive/2020/texmf-dist/web2c/texmf.cnf" 1583102494 39451 60d7debd9ef8ece44cbe965493576c2d ""
   "/usr/local/texlive/2020/texmf-var/web2c/xetex/xelatex.fmt" 1594846049 4769630 82c1b0636c710c190d47dd14a4585dd2 ""
   "/usr/local/texlive/2020/texmf.cnf" 1586288231 577 d60164b4589a341208aff7a667fbbdcb ""
-  "figs/semivariogram-models.png" 1607964883 50745 41c9eb79e9d5104acf026253f263750d ""
-  "kriging.aux" 1607974882 1909 62f1d71777f912dfeb82f852043e99be "xelatex"
-  "kriging.out" 1607974882 503 0c5eeeb0be0eae75e88db1829d098fd2 "xelatex"
-  "kriging.tex" 1607974920 8311 36845cd4c9d6fc6d1118565df478d54e ""
+  "figs/natural-neighbour.png" 1607996287 55638 29a62efefc523fca8434ddc2eb49ca1e ""
+  "figs/semivariogram-models.png" 1607975137 38731 6cf93029bb1383fd9f73a5694cc9c19d ""
+  "kriging.aux" 1607997921 2532 04f7749d0c6ab7e33722b619c239d20e "xelatex"
+  "kriging.out" 1607997921 634 9432102f741eaa3d8ab8181ef54ad455 "xelatex"
+  "kriging.tex" 1607997919 10942 a4771b033a29423e34f97a40b9f530ea ""
   (generated)
-  "kriging.xdv"
-  "kriging.out"
   "kriging.aux"
+  "kriging.xdv"
   "kriging.log"
+  "kriging.out"

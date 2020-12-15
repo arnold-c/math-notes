@@ -5,6 +5,7 @@
 \graphicspath{ {./figs/} }
 \usepackage[colorlinks=true]{hyperref}
 \setlength\parindent{0pt}
+\usepackage{amsmath}
 
 \usepackage{array }% New env. for equation conditions where aligned
 \newenvironment{conditions}[1][where:] 
@@ -27,7 +28,7 @@ There are multiple different methods to interpolate data that depend on differen
 These methods are described below.
 
 \begin{center}
-    \fbox{Information from \href{https://desktop.arcgis.com/en/arcmap/10.3/tools/3d-analyst-toolbox/how-kriging-works.htm}{ARCGIS} unless listed otherwise}
+    \fbox{Information from \href{https://desktop.arcgis.com/en/arcmap/10.3/tools/3d-analyst-toolbox/how-kriging-works.htm}{ARCGIS} and Applied Spatial Data Analysis With R (2013) unless listed otherwise}
 \end{center}
 
 \section{Inverse distance weighting (IDW)}
@@ -99,7 +100,7 @@ In kriging $\lambda_{i}$ also depends on autocorrelation i.e. spatial relationsh
 \subsection{Assumptions in kriging}
 
 \begin{center}
-    \fbox{Information for subsection from \href{https://www.publichealth.columbia.edu/research/population-health-methods/kriging-interpolation}{Columbia}}    
+    \fbox{Information for assumptions from \href{https://www.publichealth.columbia.edu/research/population-health-methods/kriging-interpolation}{Columbia}}    
 \end{center}
 
 For kriging to be used, there are a number of assumptions/conditions to be met.
@@ -119,7 +120,7 @@ These conditions can be checked in exploratory data analysis.
 
 
 
-\section{Creating a prediction map with kriging}
+\subsection{Creating a prediction map with kriging}
 
 There are two steps:
 
@@ -128,10 +129,10 @@ There are two steps:
     \item Predict the unknown values
 \end{enumerate}
 
-\subsection{Variography (spatial modelling/structural analysis)}
+\subsubsection{Variography (spatial modelling/structural analysis)}
 
 There are often too many pairs of spatial points to calculate and plot the distance for each pair.
-Instead, spatial distances are put into lag bins i.e. all points in the range $40m < x \le 50m$ of point A, and calculate the semivariance.
+Instead, spatial distances are put into lag bins i.e. all points in the range $40m < h \le 50m$ of point A, and calculate the semivariance.
 The semivariance is equal to half the variance of the differences between all possible points spaced a constant distance apart.
 
 \[\gamma (h) = \frac{1}{2}[z(x_{i}) - z(x_{j})]^2\]
@@ -153,6 +154,7 @@ Different types of models can be fit the the semivariogram:
 
 \begin{figure}[h]
     \centering
+    \label{Kriging variogram model shapes}
     \caption{Different types of models used in spatial modelling \href{https://www.publichealth.columbia.edu/research/population-health-methods/kriging-interpolation}{(Poilou 2008)}. a) Linear semi-variogram; (b) spherical semi-variogram; (c) exponential semi-variogram; and (d) power semi-variogram}
     \includegraphics[width=10cm]{semivariogram-models.png}
 \end{figure} 
@@ -181,7 +183,7 @@ There are a number of key points on the figures:
     \end{itemize}
 \end{itemize}
 
-\subsection{Predictions}
+\subsubsection{Predictions}
 
 Now a model has been fit to the semivariance and autocorrelation can be observed, predictions can be made within the domain.
 Kriging differs from IWD as it uses the semivariogram to calculate the weights.
@@ -199,5 +201,67 @@ There are two methods used in kriging:
         \item Semivariogram is modelled on the residuals to produce autocorrelations
     \end{itemize}
 \end{enumerate}
+
+\section{Natural Neighbour}
+
+Natural neighbour is a local method that examines samples near the point of interest and evaluates the relative overlap with their areas.
+The relative overlaps are then used to create the weights for interpolation.
+Because of this, it is also known as "area-stealing" (Sibson) interpolation.
+Natural neighbour interpolation therefore does not infer trends that are not already present in the data, and the surface passes through the points, and is smooth in between.
+
+The areas are called Voronoi (Thiessen) polygons.
+Voronoi polygons are created by examining the space around points and drawing the boundary so that every place inside the boundary is closest to the polygon's point than any other.
+Formally this is written as:
+
+\[R_{k} = \left\{x \in X \mid d(x, P_{k}) < d(x, P_{j}) \text{ for all } j \neq k)\right\}\]
+
+\begin{conditions}
+    R_{k} & Voronoi polygon of point $k$ \\
+    P_{k} & Point $k$ \\ 
+    P_{j} & Neighbouring point $j$
+\end{conditions}
+
+An example of this can be seen in the figure below.
+
+\begin{figure}[h]
+    \centering
+    \label{Natural neighbour method of interpolation}
+    \caption{Natural neighbour method of interpolation}
+    \includegraphics[width=5cm]{natural-neighbour.png}
+\end{figure}
+
+\section{Splines}
+
+Splines are a smoothing function that pass through all the input points and attempt to create a smooth surface between them.
+The surface is fit to a specified number of neighbouring input points.
+The basic spline is also known as a thin plate interpolation.
+There are two conditions that minimum curvature splines must follow:
+
+\begin{enumerate}
+    \item The surface must pass through all data points
+    \item The surface must have minimum curvature i.e. minimize the cumulative sum of squares of the second derivative terms of the surface at each point
+\end{enumerate}
+
+One possible issue with thin plate interpolation is that there may be rapid change in first derivatives around each data point.
+
+Generally, the spline formula is:
+
+\[S(x, y) = T(x, y) + \sum_{j=1}^{N} \lambda_{j} R(r_{j})\]
+
+There are two spline types:
+
+\begin{enumerate}
+    \item Regularized splines
+    \begin{itemize}
+        \item Creates a smooth and gradually changing surface, allowing values outside those observed in the data
+        \item 
+    \end{itemize}
+    \item Tension splines
+    \begin{itemize}
+        \item Creates a less smooth surface with values more tightly constrained by the sample data range
+    \end{itemize}
+\end{enumerate}
+
+
 
 \end{document}
