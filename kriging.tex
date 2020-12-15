@@ -6,6 +6,7 @@
 \usepackage[colorlinks=true]{hyperref}
 \setlength\parindent{0pt}
 \usepackage{amsmath}
+\usepackage{upgreek}
 
 \usepackage{array }% New env. for equation conditions where aligned
 \newenvironment{conditions}[1][where:] 
@@ -233,6 +234,7 @@ An example of this can be seen in the figure below.
 \section{Splines}
 
 Splines are a smoothing function that pass through all the input points and attempt to create a smooth surface between them.
+As such, it is best for gently varying surfaces e.g. pollution concentrations.
 The surface is fit to a specified number of neighbouring input points.
 The basic spline is also known as a thin plate interpolation.
 There are two conditions that minimum curvature splines must follow:
@@ -243,25 +245,71 @@ There are two conditions that minimum curvature splines must follow:
 \end{enumerate}
 
 One possible issue with thin plate interpolation is that there may be rapid change in first derivatives around each data point.
+Increasing the number of points used for interpolation can help to smooth the surface as the cell is influenced by a greater number of more distant points.
+Splines create rectangular regions of equal size, with the same number in the $x-$ and $y-$ directions.
+Each region must contain at least 8 points, but different densities resulting from data that is not uniformly distributed can lead to regions containing different numbers of points.
 
 Generally, the spline formula is:
 
 \[S(x, y) = T(x, y) + \sum_{j=1}^{N} \lambda_{j} R(r_{j})\]
 
-There are two spline types:
+\begin{conditions}
+    N & total number of points to be used in interpolation \\
+    \lambda_{j} & coefficients found by the solution of a system of linear equations \\
+    r_{j} & the distance from the point $(x,y)$ to the $j$th point
+\end{conditions}
 
-\begin{enumerate}
-    \item Regularized splines
-    \begin{itemize}
-        \item Creates a smooth and gradually changing surface, allowing values outside those observed in the data
-        \item 
-    \end{itemize}
-    \item Tension splines
-    \begin{itemize}
-        \item Creates a less smooth surface with values more tightly constrained by the sample data range
-    \end{itemize}
-\end{enumerate}
+There are two spline types, which define the terms $T(x, y)$ and $R(r_{j})$ differently.
 
+\subsection{Regularized splines}
 
+A regularized spline creates a smooth and gradually changing surface, allowing values outside those observed in the data.
+
+\[T(x, y) = a_{1} + a_{2}x + a_{3}y\]
+
+\begin{conditions}
+    a_{i} & coefficients found by the solutions of a system of linear equations
+\end{conditions}
+
+and, 
+
+\[R(r) = \frac{1}{2 \pi} \left\{\frac{r^2}{4}\left[\ln \left(\frac{r}{2 \uptau}\right) + c - 1 \right] + \uptau^2\left[K_0 \left(\frac{r}{\uptau}\right) + c + \ln \left(\frac{r}{2 \pi}\right)\right]\right\}\]
+
+\begin{conditions}
+    r & the distance between the point and the sample \\
+    \uptau^2 & the Weight parameter \\
+    K_0 & the modified Bessel function \\
+    c & a constant equal to 0.577215
+\end{conditions}
+
+In regularized splines, the Weight parameter ($\uptau^2$) specifies the weights attached to the third derivatives terms during minimization.
+Larger weights result in smoother surfaces and smooth first-derivative surfaces.
+Typical values range between 0 and 0.5.
+
+\subsection{Tension splines}
+
+A tension spline creates a less smooth surface with values more tightly constrained by the sample data range.
+
+\[T(x, y) = a_{1} \]
+
+\begin{conditions}
+    a_{1} & a coefficient found by the solutions of a system of linear equations
+\end{conditions}
+
+and, 
+
+\[R(r) = - \frac{1}{2 \pi \varphi^2} \left[\ln\left(\frac{r \varphi}{2}\right) + c + K_0 \left(r \varphi\right)\right]\]
+
+\begin{conditions}
+    r & the distance between the point and the sample \\
+    \varphi^2 & the Weight parameter \\
+    K_0 & the modified Bessel function \\
+    c & a constant equal to 0.577215
+\end{conditions}
+
+The tension method differs from regularized splines as it attaches the Weight parameter ($\varphi^2$) to first-derivative terms, not third-derivative terms.
+Larger values of $\varphi^2$  lower the tension and result in a coarser surface as the first-derivative surface is not smooth, passing through all the points.
+$\varphi^2 = 0$ results in a basic thin plate surface.
+Typical values range between 0 and 10.
 
 \end{document}
