@@ -4,17 +4,24 @@
 \usepackage{graphicx}
 \graphicspath{ {./figs/} }
 \usepackage[colorlinks=true]{hyperref}
-\setlength\parindent{0pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1em}
+\usepackage{fancyhdr} % Needed to adjust page numbering
+\usepackage{lastpage} % Counts total number of pages
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt} % Remove header line
+\cfoot{\thepage \hspace{1pt} of \pageref*{LastPage}} % Customize page nums
+
+
 \usepackage{amsmath}
 \usepackage{upgreek}
 
-\usepackage{array }% New env. for equation conditions where aligned
+\usepackage{array} % New env. for equation conditions where aligned
 \newenvironment{conditions}[1][where:] 
   {#1 \begin{tabular}[t]{>{$}l<{$} @{${}={}$} l}}
   {\end{tabular}\\[\belowdisplayskip]}
-
-\usepackage{tikz}
-\usepackage{pgfplots}
 
 \title{Spatial Interpolation Notes}
 
@@ -32,15 +39,41 @@ These methods are described below.
     \fbox{Information from \href{https://desktop.arcgis.com/en/arcmap/10.3/tools/3d-analyst-toolbox/how-kriging-works.htm}{ARCGIS} and Applied Spatial Data Analysis With R (2013) unless listed otherwise}
 \end{center}
 
+There are two main methods used to interpolate data and estimate a surface for geospatial data:
+
+\begin{itemize}
+    \item Inverse distance weighting (IDW) and spline methods
+    \item Kriging
+\end{itemize}
+
+IDW and splines are deterministic interpolation methods as they are directly based on the surrounding values or smoothed formulas.
+Kriging is different as it uses autocorrelation and takes position into account in the statistical models.
+Kriging uses a certain number of neighbouring points, or all points within a specified radius (cf kNN).
+
+The general formula for IDW and kriging is:
+
+\[\hat{Z}(s_{0} )=\sum_{i=1}^{N} w(s_{i}) Z (s_{i})\]
+
+\begin{conditions}
+Z(s_{i}) & the measured value at the $i$th location \\
+w(s_{i}) & an unknown weight for the measured value at the $i$th location \\
+s_{0} & the prediction location \\
+N & the number of measured values
+\end{conditions}
+
+The difference between IDW and kriging is that in IDW, $w(s_{i})$ only depends on distance to prediction location.
+In kriging $w(s_{i})$ also depends on autocorrelation i.e. spatial relationship between prediction locations.
+
 \section{Inverse distance weighting (IDW)}
 
-IWD determines cell values using a linearly weighted combination of surrounding values.
+IDW determines cell values using a linearly weighted combination of surrounding values.
 The weights are function of the inverse distance.
 The general form for the IDW function is:
 
-\[\hat{Z}(s_{0})= \frac{\sum_{i=1}^{n} w (s_{i}) Z (s_{i})}{\sum_{i=1}^{n} w (s_{i})}\]
+\[\hat{Z}(s_{0})= \frac{\sum_{i=1}^{n} w(s_{i}) Z(s_{i})}{\sum_{i=1}^{n} w (s_{i})}\]
 
 \begin{conditions}
+    Z(s_{i}) & the measured value at the $i$th location \\
     w(s_{i}) & $||s_{i} - s_{0}||^{-p}$ \\
     || \cdot || & Euclidean distance \\
     p & an inverse distance weighting power, defaulting to 2
@@ -50,7 +83,7 @@ The value of $p$ determines how much closer values are preferred.
 As $p$ increases, IDW approaches a one-nearest-neighbour interpolation model.
 $p$ can be selected using cross-validation.
 
-Another way to control IWD interpolation is through selecting the number of neighbouring observations to include.
+Another way to control IDW interpolation is through selecting the number of neighbouring observations to include.
 This can improve speed of interpolation, and may be used when there is reason to believe that distant points have little correlation.
 There are two approaches for varying the number of points used for interpolation:
 
@@ -72,31 +105,16 @@ In addition to these two approaches, barriers can be created to limit the search
 
 \section{Kriging}
 
-Kriging is a way to interpolate data and estimate a surface for geospatial data.
-There are two main ways of doing this:
+One of the key benefits of kriging is that in addition to using autocorrelation, it is able to estimate uncertainty in the interpolation.
+It can do this because it is based on a spatial arrangement of empirical observations, rather than a presumed model of spatial distribution.
+Although kriging preferentially weights closer observations, its use of autocorrelation means that clusters are not over-fit i.e. lowering bias as each point in a cluster provides less information than a single point.
 
-\begin{itemize}
-    \item Inverse distance weighting (IDW) and spline methods
-    \item Kriging
-\end{itemize}
+The kriging predictor is an "optimal linear predictor" and an exact interpolator.
+This means that prediction error is each interpolated value is calculated to minimize the prediction error for that point.
+It also means that the interpolated value for sampled points is equal to the actual value, and all interpolated values will be the Best Linear Unbiased Predictors (BLUPs).
 
-IDW are deterministic interpolation methods as they are directly based on the surrounding values or smoothed formulas.
-Kriging is different as it uses autocorrelation and takes position into account in the statistical models.
-Kriging uses a certain number of neighbouring points, or all points within a specified radius (cf kNN).
-
-The general formula for IDW and kriging is:
-
-\[\hat{Z}(s_{0} )=\sum_{i=1}^{N}\lambda_{i} Z (s_{i})\]
-
-\begin{conditions}
-Z \left(s_{i}\right) & the measured value at the $i$th location \\
-\lambda_{i} & an unknown weight for the measured value at the $i$th location \\
-s_{0} & the prediction location \\
-N & the number of measured values
-\end{conditions}
-
-The difference between IDW and kriging is that in IDW, $\lambda_{i}$ only depends on distance to prediction location.
-In kriging $\lambda_{i}$ also depends on autocorrelation i.e. spatial relationship between prediction locations.
+Kriging is only helpful where there is at least moderate spatial autocorrelation.
+If there is not, then simpler methods like IDW, will generally perform as well as kriging.
 
 \subsection{Assumptions in kriging}
 
@@ -108,7 +126,7 @@ For kriging to be used, there are a number of assumptions/conditions to be met.
 These conditions can be checked in exploratory data analysis.
 
 \begin{enumerate}
-    \item The data should be stationary
+    \item Assumption of intrinsic stationarity
     \begin{itemize}
         \item Means that the joint probability distribution does not vary across the study space, so the same parameters (e.g. mean, range and sill etc) are valid across the space
         \item Means one variogram is valid across the space
@@ -119,6 +137,23 @@ These conditions can be checked in exploratory data analysis.
     \end{itemize}
 \end{enumerate}
 
+By making these assumptions, we are assuming that the samples are randomly generated by the function $Z(s)$ with a mean ($m$) and residual ($e(s)$).
+
+\[Z(s) = m + e(s)\]
+
+\begin{conditions}
+    E\left(Z(s)\right) & $m$
+\end{conditions}
+
+The assumption of \textit{intrinsic stationarity} and \textit{isotropy} can be relaxed to create models where the mean varies spatially.
+In instances like this, the measured values can be assumed to be randomly generated by a linear function of known predictors $X_j(s)$.
+
+\begin{equation}
+    \begin{split}
+        Z(s) & = \sum_{j=0}^p X_j(s)\beta_j + e(s) \\
+        & = X\beta + e(s)
+    \end{split}    
+\end{equation}
 
 
 \subsection{Creating a prediction map with kriging}
@@ -135,15 +170,23 @@ There are two steps:
 There are often too many pairs of spatial points to calculate and plot the distance for each pair.
 Instead, spatial distances are put into lag bins i.e. all points in the range $40m < h \le 50m$ of point A, and calculate the semivariance.
 The semivariance is equal to half the variance of the differences between all possible points spaced a constant distance apart.
+Assuming \textit{isotropy} and \textit{intrinsic stationarity}, we can generalise the distances between points and use the distance $||h||$ rather than the vector $\textbf{h}$, i.e. use bins.
 
-\[\gamma (h) = \frac{1}{2}[z(x_{i}) - z(x_{j})]^2\]
+\[\hat{\gamma} (\tilde{h}_j) = \frac{1}{2N_h}\sum_{i=1}^{N_h}\left(Z(s_i) - Z(s_i + h)\right)^2, \text{ } \forall h \in \tilde{h}_j\]
+
+\begin{conditions}
+    Z(s_{i}) & the measured value at the $i$th location \\
+    \hat{\gamma} (\tilde{h}_j) & sample variogram \\
+    N_h & sample data points \\
+    \tilde{h}_j & distance bins (intervals)
+\end{conditions}
 
 Plotting the distance vs semivariance produces an empirical semivariogram.
 Closer items should be more similar, therefore lower semivariance.
 The opposite is true for further points.
 
 A model is fit to the empirical semivariogram (cf regression).
-Different types of models can be fit the the semivariogram:
+Different types of models can be fit the the semivariogram, and the optimal model can be selected using metrics like RMSE, MLE, and Bayesian methods:
 
 \begin{itemize}
     \item Spherical (most common)
@@ -187,8 +230,8 @@ There are a number of key points on the figures:
 \subsubsection{Predictions}
 
 Now a model has been fit to the semivariance and autocorrelation can be observed, predictions can be made within the domain.
-Kriging differs from IWD as it uses the semivariogram to calculate the weights.
-There are two methods used in kriging:
+Kriging differs from IDW as it uses the semivariogram to calculate the weights.
+There are a number of methods used in kriging:
 
 \begin{enumerate}
     \item Ordinary kriging
@@ -197,11 +240,46 @@ There are two methods used in kriging:
     \end{itemize}
     \item Universal kriging
     \begin{itemize}
-        \item Assumes there's a prevailing trend
+        \item Assumes there's a prevailing trend, relaxing the assumption of stationarity for the mean, but maintaining a constant variance
         \item Trend is modelled with polynomial function, and subtracted from observed
         \item Semivariogram is modelled on the residuals to produce autocorrelations
     \end{itemize}
+    \item Block kriging
+    \begin{itemize}
+        \item Estimates averaged values over gridded “blocks” rather than single points
+        \item These blocks often have smaller prediction errors than are seen for individual points
+    \end{itemize}
+    \item Covariate kriging
+    \begin{itemize}
+        \item Additional observed variables (which are often correlated with each other and the variable of interest) are used to enhance the precision of the interpolation of the variable of interest at each location
+    \end{itemize}
+    \item Poisson kriging
+    \begin{itemize}
+        \item Used for incidence counts and disease rates 
+    \end{itemize}
 \end{enumerate}
+
+\subsection{Limitations}
+
+\begin{center}
+    \fbox{Information for limitations from \href{https://www.publichealth.columbia.edu/research/population-health-methods/kriging-interpolation}{Columbia}}    
+\end{center}
+
+There are a number of limitations of kriging.
+
+\begin{enumerate}
+    \item Since the weights of the kriging interpolator depend on the modeled variogram, kriging is quite sensitive to mis-specification of the variogram model
+    \item Similarly, the assumptions of the kriging model (e.g. that of second-order stationarity) may be difficult to meet in the context of many environmental exposures
+    \begin{itemize}
+        \item Some newer methods (e.g. Bayesian approaches) have thus been developed to try and surmount these obstacles
+    \end{itemize}
+    \item In general, the accuracy of interpolation by kriging will be limited if the number of sampled observations is small, the data is limited in spatial scope, or the data are in fact not amply spatially correlated
+    \begin{itemize}
+        \item In these cases, a sample variogram is hard to generate, and methods such as land-use regression may prove preferable to kriging for spatial prediction
+    \end{itemize}
+\end{enumerate}
+
+
 
 \section{Natural Neighbour}
 
@@ -214,7 +292,7 @@ The areas are called Voronoi (Thiessen) polygons.
 Voronoi polygons are created by examining the space around points and drawing the boundary so that every place inside the boundary is closest to the polygon's point than any other.
 Formally this is written as:
 
-\[R_{k} = \left\{x \in X \mid d(x, P_{k}) < d(x, P_{j}) \text{ for all } j \neq k)\right\}\]
+\[R_{k} = \left\{x \in X \mid d(x, P_{k}) < d(x, P_{j}),  \text{ } \forall j \neq k)\right\}\]
 
 \begin{conditions}
     R_{k} & Voronoi polygon of point $k$ \\
