@@ -304,8 +304,8 @@ An example of this can be seen in the figure below.
 
 \begin{figure}[h]
     \centering
-    \label{Natural neighbour method of interpolation}
     \caption{Natural neighbour method of interpolation}
+    \label{Natural neighbour method of interpolation}
     \includegraphics[width=5cm]{natural-neighbour.png}
 \end{figure}
 
@@ -389,5 +389,101 @@ The tension method differs from regularized splines as it attaches the Weight pa
 Larger values of $\varphi^2$  lower the tension and result in a coarser surface as the first-derivative surface is not smooth, passing through all the points.
 $\varphi^2 = 0$ results in a basic thin plate surface.
 Typical values range between 0 and 10.
+
+\section{Datacamp: Visualizing geospatial data in R}
+
+\begin{itemize}
+    \item \textit{ggmap} package very useful for quickly producing static spatial plots
+    \begin{itemize}
+        \item \textit{ggmap:get\_map(long, lat)} pulls basemap based lat long
+        \item \textit{ggmap(*ggmap*, base\_layer = ggplot(df, aes(long, lat))) + geom\_point()} allows you to plot layers over map and retain same aes() e.g. for faceting
+    \end{itemize}
+    \item Different types of spatial data
+    \begin{itemize}
+        \item Point data
+        \item Line data - assumes points connected by straight lines
+        \item Polygon data
+        \begin{itemize}
+            \item Data associated with enclosed area of points
+            \item \textit{ggplot2::geom\_poly()}
+        \end{itemize} 
+        \item Raster (grid) data
+        \begin{itemize}
+            \item Regular grid specified by origin and steps in x and y axis, and data is associated with cells in grid
+            \item \textit{ggplot2::geom\_tile(aes(fill = *var*))} used to create raster
+        \end{itemize}
+    \end{itemize}
+    \item Polygon data
+    \begin{itemize}
+        \item Difficult to described
+        \begin{itemize}
+            \item Order of joining up points matters
+            \item Polygons may be broken up e.g. by river therefore needing multiple polygons to describe it
+        \end{itemize}
+    \end{itemize}
+    \item \textit{sp} data structures better that \textit{dataframes} for storing spatial data as don't have to repeat info like groups and order for polygons, and contains information about the coordinate sytem itself, which is useful when working with multiple systems/for sharing
+    \item \textit{spdf} is an \textbf{S4} data type
+    \begin{itemize}
+        \item Useful adaptation of \textit{sp} structure as also contains dataframe
+        \item Items are \textbf{slots} that are accessed with the \textit{@} symbol e.g. \textit{spdf@polygon}
+        \begin{itemize}
+            \item Each \textbf{slot} contains a list that is \textit{another} \textbf{S4} object (e.g. Polygons) (see Fig. \ref{spdf data structure})
+            
+            \begin{figure}[h]
+                \centering
+                \caption{\textit{spdf} data structure}
+                \label{spdf data structure}
+                \includegraphics[width=15cm]{spdf.png}
+            \end{figure} 
+
+            \item Can pull information as with normal dataframes using $\$$ symbol e.g. 
+            \begin{itemize}
+                \item \textit{is\_nz = countries\_spdf\$name == ``New Zealand''}
+                \item \textit{nz = countries\_spdf[is\_nz, ]}
+            \end{itemize}
+        \end{itemize}
+    \end{itemize}
+    \item \textit{tmap} package designed to plot spatial data, rather than requiring dataframe format, like \textit{ggplot2}
+    \begin{itemize}
+        \item \textit{tm\_shape()} adds basemap
+        \item \textit{tm\_raster()} creates choropleth
+        \item Can save interactive \textit{leaflet} map using \textit{tmap\_save(filename = *.html)}
+    \end{itemize}
+    \item \textit{raster} package better to work with raster data than \textit{sp} and \textit{ggplot2}
+    \begin{itemize}
+        \item Creates an \textbf{S4} object
+        \item More efficient as stores data in matrix like format, where each value is associated with a cell in the raster grid
+        \begin{itemize}
+            \item Multiple matrices act as layers to provide more information
+            \begin{itemize}
+                \item \textit{Multi-band/multi-layer} rasters
+            \end{itemize}
+            \item Reduces reproducing the same grid
+        \end{itemize}
+        \item \textit{rasterVis::levelplot()} good for quickly visualizing rasters
+    \end{itemize}
+    \item \textit{classInt::classIntervals()} useful to bin continuous variables for choropleths
+    \item \textit{rgdal::readOGR} used to read in shape files (polygons)
+    \item \textit{proj4string()} allows you to define the coordinate reference system (CRS) and projection when no present, or print it where it is present
+    \item \textit{rgdal::spTransform()} used to transform CRS
+    \begin{itemize}
+        \item \textit{tmap} does the transformation automatically
+    \end{itemize}
+\end{itemize}
+
+
+
+
+
+
+
+
+\section{Datacamp: Spatial analysis with sf and raster in R}
+
+\section{Datacamp: Spatial statistics in R}
+
+\section{Datacamp: Interactive maps with leaflet with R}
+
+
 
 \end{document}
