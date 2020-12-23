@@ -1,9 +1,0 @@
-\BOOKMARK [1][-]{section.1}{DataCamp: forecasting in R course}{}% 1
-\BOOKMARK [2][-]{subsection.1.1}{Exploring time series}{section.1}% 2
-\BOOKMARK [2][-]{subsection.1.2}{Benchmark methods and forecast accuracy}{section.1}% 3
-\BOOKMARK [2][-]{subsection.1.3}{Exponential smoothing}{section.1}% 4
-\BOOKMARK [3][-]{subsubsection.1.3.1}{Simplet exponential smoothing models}{subsection.1.3}% 5
-\BOOKMARK [3][-]{subsubsection.1.3.2}{Holt's linear trend model}{subsection.1.3}% 6
-\BOOKMARK [3][-]{subsubsection.1.3.3}{Holt-Winter's model}{subsection.1.3}% 7
-\BOOKMARK [3][-]{subsubsection.1.3.4}{ Innovations state space models}{subsection.1.3}% 8
-\BOOKMARK [2][-]{subsection.1.4}{Forecasting with ARIMA models}{section.1}% 9

@@ -361,10 +361,217 @@
     \begin{itemize}
         \item Need to pass to \textit{forecast::forecast()} function for predictions
     \end{itemize}
-    \item ETS models are necessarily better than simpler ones e.g. seasonal naive
+    \item ETS models are not necessarily better than simpler ones e.g. seasonal naive
 \end{itemize}
 
 \subsection{Forecasting with ARIMA models}
+
+\begin{itemize}
+        \item ETS use multiplicative errors and seasonality to handle variance that increases with levels
+    \begin{itemize}
+        \item Can use transformations to adjust instead
+    \end{itemize}
+    \item Box-Cox transformations used to create common variance
+    
+    \[ 
+        w_t = \begin{cases}
+        \log(y_t) & \lambda = 0 \\
+        \left(y_t^\lambda - 1\right)/\lambda & \lambda \neq 0
+        \end{cases}
+    \]
+
+    \begin{itemize}
+        \item \textit{forecast::BoxCox.lambda()} will select best value of $\lambda$
+        \item Essential to use transformation of some kind with ARIMA models
+    \end{itemize}
+    \item Non-seasonal autoregressive integrated moving average models
+    \begin{itemize}
+        \item Autoregressive models are regression of time series against lagged \textbf{values} of series
+        \item Moving average models are regression against lagged \textbf{errors}
+        \item Adding two you get an ARMA model
+        \begin{itemize}
+            \item Last $p$ observations, and last $q$ errors are used as predictors in the equation
+            \item Can only work with stationary data so need to difference data first
+            \begin{itemize}
+                \item Stationary timeseries have properties that don't depend on the time i.e. no trends or seasonal components, but can have cyclical patterns
+            \end{itemize}
+        \end{itemize}
+        \item \textbf{Integrated} is the opposite of differencing (e.g. integration vs differentiation)
+        \begin{itemize}
+            \item If timeseries needs to be differenced $d$ times, known as ARIMA ($p, d, q$) model
+            \begin{itemize}
+                \item d = number of lag-1 differences
+                \item p = number of ordinary AR lags: $y_{t-1}, y_{t-2}, \ldots, y_{t-p}$
+                \item q = number of ordinary MA lags: $\varepsilon_{t-1}, \varepsilon_{t-2}, \ldots, \varepsilon_{t-q}$
+            \end{itemize}
+        \end{itemize}
+        \item \textit{forecast::auto.arima()} automatically selects best values of $p, d, q$ by minimizing AIC\textsubscript{c}
+        \begin{itemize}
+            \item Parameters estimated using MLE
+            \item Can only compare AIC\textsubscript{c} values between models of same class (e.g. ARIMA vs ARIMA, not ARIMA vs ETS) and same differencing
+            \item Stepwise search to test parameters means that may find local minimum
+            \item \textit{drift} term refers to $c$, which is the average change between consecutive observations 
+        \end{itemize}
+        \item Use cross-validation to compare models of different classes
+        \begin{itemize}
+            \item Find MSE of each class
+            
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(tidyverse)}
+\hlkwd{library}\hlstd{(forecast)}
+\hlkwd{library}\hlstd{(fpp2)}
+
+\hlcom{# ETS function for CV}
+\hlstd{fets} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{h}\hlstd{) \{}
+    \hlkwd{forecast}\hlstd{(}\hlkwd{ets}\hlstd{(x),} \hlkwc{h} \hlstd{= h)}
+\hlstd{\}}
+\hlcom{# ARIMA function for CV}
+\hlstd{farima} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{h}\hlstd{) \{}
+    \hlkwd{forecast}\hlstd{(}\hlkwd{auto.arima}\hlstd{(x),} \hlkwc{h}\hlstd{=h)}
+\hlstd{\}}
+
+\hlcom{# Compute CV errors for ETS on austa as e1}
+\hlstd{e1} \hlkwb{<-} \hlkwd{tsCV}\hlstd{(austa, fets,} \hlkwc{h} \hlstd{=} \hlnum{1}\hlstd{)}
+
+\hlcom{# Compute CV errors for ARIMA on austa as e2}
+\hlstd{e2} \hlkwb{<-} \hlkwd{tsCV}\hlstd{(austa, farima,} \hlkwc{h} \hlstd{=} \hlnum{1}\hlstd{)}
+
+\hlcom{# Find MSE of each model class}
+\hlkwd{mean}\hlstd{(e1}\hlopt{^}\hlnum{2}\hlstd{,} \hlkwc{na.rm} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## [1] 0.05623684
+\end{verbatim}
+\begin{alltt}
+\hlkwd{mean}\hlstd{(e2}\hlopt{^}\hlnum{2}\hlstd{,} \hlkwc{na.rm} \hlstd{=} \hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## [1] 0.04336277
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+        \end{itemize}
+    \end{itemize}
+    \item Seasonal ARIMA
+    \begin{itemize}
+        \item Uses same parameters, but uppercase to signify seasonal
+        \begin{itemize}
+            \item D = number of seasonal differences
+            \item P = number of seasonal AR lags: $y_{t-m}, y_{t-2m}, \ldots, y_{t-Pm}$
+            \item Q = number of seasonal MA lags: $\varepsilon_{t-m}, \varepsilon_{t-m}, \ldots, \varepsilon_{t-Qm}$
+            \item m = seasonal period (number of observations per year)
+        \end{itemize}
+        \item Non-linear as seasonal components multiply with non-seasonal components
+        \item Allow seasonality to \textbf{change over time}
+        \begin{itemize}
+            \item Mainly affected by seasonality at end of series, and not as much by the start
+        \end{itemize}
+        \item When using \textbf{at least two differences}, forecast will have trend without needing to include drift term (e.g. ordinary and seasonal differencing)
+    \end{itemize}
+\end{itemize}
+
+\subsection{Advanced methods}
+
+\begin{itemize}
+    \item Often want to include information from other variables to improve our forecast (rather than just relying on changes in outcome variable)
+    \item Dynamic regression
+    \begin{itemize}
+        \item $y_t = \beta_0 + \beta_1 x_{1, t} + \ldots + \beta_r x_{r, t} + e_t$
+        \begin{itemize}
+            \item  Looks very similar to standard linear regression equation, but error term is ARIMA process
+        \end{itemize}
+        \item \textit{forecast::auto.arima(df[, ``outcome''], xreg = df[, ``var''])} used to fit dynamic regression model
+        \item \textit{forecast::forecast(fit, xreg = rep(value, period))} used to forecast different scenarios of the input variable (value and period)
+    \end{itemize}
+    \item Dynamic harmonic regression
+    \begin{itemize}
+        \item Uses Fourier terms to account for seasonality
+        \item $y_t = \beta_0 + \beta_1 x_{1, t} + \ldots + \beta_{t, r}x_{t, r} + \sum_{k=1}^K \left[\alpha_k s_k(t) + \gamma_k c_k (t)\right] + e_t$
+        \begin{itemize}
+            \item $s_k(t)=\sin\left(\frac{2kt}{m}\right)$
+            \item $c_k(t)=\cos\left(\frac{2kt}{m}\right)$
+            \item $m=$ seasonal period
+            \item Usually don't use ARIMA errors as seasonality already accounted for
+            \item Assume seasonal pattern doesn't change over time
+        \end{itemize}
+        \item \textit{forecast::auto.arima(df, xreg = fourier(df, K = k), seasonal = FALSE, lambda = w)} fits dynamic harmonic regression
+        \begin{itemize}
+            \item Select $K$ to minimize AIC\textsubscript{c} (cross-validation?)
+            \item $K < \frac{m}{2}$
+            \item \textit{seasonal = FALSE} indicates don't want to produce ARIMA errors
+        \end{itemize}
+        \item \textit{fit \%$>$\% forecast::forecast(xreg = fourier(df, K = k, h = h))} forecasts using the dynamic harmonic regression model
+        \begin{itemize}
+            \item Selecting \textit{h} indicates want to forecast forward
+        \end{itemize}
+        \item Fourier terms vs ARIMA is that handles large values of $m$ well 
+        \begin{itemize}
+            \item E.g. seasonal period of weekly data approx 52
+            \item When annual seasonality with daily data ($m=365$)
+        \end{itemize}
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{library}\hlstd{(tidyverse)}
+\hlkwd{library}\hlstd{(forecast)}
+\hlkwd{library}\hlstd{(fpp2)}
+
+\hlcom{# Set up harmonic regressors of order 13}
+\hlstd{harmonics} \hlkwb{<-} \hlkwd{fourier}\hlstd{(gasoline,} \hlkwc{K} \hlstd{=} \hlnum{13}\hlstd{)}
+
+\hlcom{# Fit regression model with ARIMA errors}
+\hlstd{fit} \hlkwb{<-} \hlkwd{auto.arima}\hlstd{(gasoline,} \hlkwc{xreg} \hlstd{= harmonics,} \hlkwc{seasonal} \hlstd{=} \hlnum{FALSE}\hlstd{)}
+
+\hlcom{# Forecasts next 3 years}
+\hlstd{newharmonics} \hlkwb{<-} \hlkwd{fourier}\hlstd{(gasoline,} \hlkwc{K} \hlstd{=} \hlnum{13}\hlstd{,} \hlkwc{h} \hlstd{=} \hlnum{52}\hlopt{*}\hlnum{3}\hlstd{)}
+\hlstd{fc} \hlkwb{<-} \hlkwd{forecast}\hlstd{(fit,} \hlkwc{xreg} \hlstd{= newharmonics)}
+
+\hlcom{# Plot forecasts fc}
+\hlkwd{autoplot}\hlstd{(fc)}
+\end{alltt}
+\end{kframe}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-3-1} 
+
+\end{knitrout}
+
+        \item Harmonic regressions are useful when there is multiple seasonality in a timeseries e.g. daily and weekly seasonality
+        \begin{itemize}
+            \item Need to specify both values of $K$ in \textit{fourier()} e.g. \textit{fourier(df, K = c(10, 10))}
+            \item \textit{forecast(fit, newdata = data.frame(fourier(df, K = c(10, 10), h = 20*48)))}
+        \end{itemize}
+        \item Sometimes \textit{forecast::auto.arima()} is too slow when fitting very long timeseries (particularly with multiple seasonality), so use Fourier terms in \textit{forecast::tslm()} function
+        \begin{itemize}
+            \item \textit{tslm(df $\sim$ fourier(df, K = c(10, 10)))}
+            \item Works like regular \textit{lm()}
+        \end{itemize}
+    \end{itemize}
+    \item TBATS model
+    \begin{itemize}
+        \item \textbf{T}rigonometric terms for seasonality
+        \begin{itemize}
+            \item Allows seasonality to change over time, unlike Fourier terms
+        \end{itemize}
+        \item \textbf{B}ox-Cox transformation for homogeneity
+        \item \textbf{A}RMA errors for short-term dynamics
+        \item \textbf{T}rend and level terms, including damping, like ETS model
+        \item \textbf{S}easonal (including multiple and non-integer periods)
+        \item Very general and handles large range of timeseries
+        \item Very useful for timeseries with large seasonal periods and multiple seasonal periods
+        \item Have to be careful with its automation
+        \begin{itemize}
+            \item Point forecast often good
+            \item Prediction intervals can be very wide
+            \item Slow with large timeseries
+        \end{itemize}
+        \item \textit{forecast::tbats(df)} used to fit model
+    \end{itemize}
+\end{itemize}
+
+
+
 
 
 
