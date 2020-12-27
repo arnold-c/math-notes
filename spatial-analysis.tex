@@ -14,7 +14,6 @@
 \renewcommand{\headrulewidth}{0pt} % Remove header line
 \cfoot{\thepage \hspace{1pt} of \pageref*{LastPage}} % Customize page nums
 
-
 \usepackage{amsmath}
 \usepackage{upgreek}
 
@@ -22,6 +21,8 @@
 \newenvironment{conditions}[1][where:] 
   {#1 \begin{tabular}[t]{>{$}l<{$} @{${}={}$} l}}
   {\end{tabular}\\[\belowdisplayskip]}
+
+\usepackage{listings}
 
 \title{Spatial Interpolation Notes}
 
@@ -446,7 +447,8 @@ Typical values range between 0 and 10.
     \item \textit{tmap} package designed to plot spatial data, rather than requiring dataframe format, like \textit{ggplot2}
     \begin{itemize}
         \item \textit{tm\_shape()} adds basemap
-        \item \textit{tm\_raster()} creates choropleth
+        \item \textit{tm\_raster()} creates choropleth for rasters
+        \item \textit{tm\_fill()} creates choropleth for polygons
         \item Can save interactive \textit{leaflet} map using \textit{tmap\_save(filename = *.html)}
     \end{itemize}
     \item \textit{raster} package better to work with raster data than \textit{sp} and \textit{ggplot2}
@@ -457,6 +459,7 @@ Typical values range between 0 and 10.
             \item Multiple matrices act as layers to provide more information
             \begin{itemize}
                 \item \textit{Multi-band/multi-layer} rasters
+                \item e.g. single band for red/green/blue light to produce colours
             \end{itemize}
             \item Reduces reproducing the same grid
         \end{itemize}
@@ -469,18 +472,211 @@ Typical values range between 0 and 10.
     \begin{itemize}
         \item \textit{tmap} does the transformation automatically
     \end{itemize}
+    \item \textit{sp::merge(spdf, df, by.x, by.y)} used to add new information to sp dataframe
+
+    \begin{itemize}
+        \item \textit{spdf} have information on \textit{x} number of \textbf{poylgons} (\textit{not observations, like a normal df})
+        \item Both \textit{@data} and \textit{@polygon} slots contain an \textit{@ID} slot to match the data to the polygons
+        \begin{itemize}
+            \item Need to make sure you match them when adding new data otherwise may become unordered
+        \end{itemize}
+    \end{itemize}
 \end{itemize}
-
-
-
-
-
-
-
 
 \section{Datacamp: Spatial analysis with sf and raster in R}
 
+\begin{itemize}
+    \item \textit{sf} package new way to read and use spatial information
+    \begin{itemize}
+        \item \textit{sf::st\_read(``file.sh'')} reads shape files into dataframe with special \textit{geometry} \textbf{list column}
+        \begin{itemize}
+            \item Means they can be manipulated like standard dfs, e.g. using \textit{dplyr} etc
+        \end{itemize}
+        \item Also save \textbf{metadata} that can be seen with \textit{head()} call
+    \end{itemize}
+    \item \textit{raster}
+    \begin{itemize}
+        \item \textit{raster::brick(``file.tif'')} reads in single band raster data
+        \item \textit{raster::raster(``file.tif'')} reads in single band raster data
+    \end{itemize}
+    \item \textit{sf::st\_area()} calculates area of individual features
+    \begin{itemize}
+        \item Produces a vector \textbf{with units} in metadata
+        \begin{itemize}
+            \item Means you have to use \textit{unclass()} function to remove units for calculations e.g. \textit{df \%$>$\% filter(unclass(areas) $>$ 3000)}
+        \end{itemize}
+    \end{itemize}
+    \item \textit{sf::st\_area()} calculates area of individual features
+    \item \textit{sf::st\_length()} calculates length of individual
+    \item \textit{raster::plotRGB()} used to plot multi-band raster images quickly (if bands correspond to RGB)
+    \begin{itemize}
+        \item \textit{plot()} creates plots for each band separately
+    \end{itemize}
+    \item To \textbf{add} CRS information:
+    \begin{itemize}
+        \item For \textit{sf} data:
+        \begin{itemize}
+            \item \textit{sf::st\_crs()} shows you the current CRS information
+            \begin{itemize}
+                \item \textit{\$epsg:} gives numeric code
+                \item \textit{\$proj4string:} gives string code
+            \end{itemize}
+            \item \textit{sf::st\_crs()} can assign CRS
+            \begin{itemize}
+                \item \textit{sf::str\_crs(sf) $<$- 4236} for EPSG
+                \item \textit{sf::str\_crs(sf) $<$- ``+proj=...''} for proj4string
+            \end{itemize}
+        \end{itemize}
+        \item For \textit{raster} data:
+        \begin{itemize}
+            \item \textit{crs()} shows and assigns current CRS information using proj4string
+            \begin{itemize}
+                \item \textit{crs() $<$- ``+proj=...''}
+            \end{itemize} 
+        \end{itemize}
+    \end{itemize}
+    \item To \textbf{change} CRS information:
+    \begin{itemize}
+        \item \textit{sf::st\_transform(sf, crs = other\_crs(raster, asText=TRUE))} for vectors (\textit{sf} data)
+        \begin{itemize}
+            \item Can use either EPSG or proj4string
+            \item \textit{asText=TRUE} required to force crs from raster format to text when using a mix of polygons and rasters
+        \end{itemize}
+        \item \textit{raster::projectRaster()} for rasters
+        \begin{itemize}
+            \item When specifying CRS with EPSG, must use \textit{projectRaster(raster, crs = ``+init=epsg:32618'')}
+            \item Use proj4string as normal (\textit{projectRaster(rater, crs = proj4string)})
+        \end{itemize}
+    \end{itemize}
+    \item \textit{sf::st\_cast(, ``MULTIPOINT'')} used to \textit{cast} polygons in \textit{\$geometry} to bundles of points (MULTIPOINT) to then calculate number of vertices
+    \begin{itemize}
+        \item \textit{sum(sapply(pts, length))}
+    \end{itemize}
+    \item \textit{sf::st\_simplify()} used to simplify spatial data by reducing number of vertices so will be processed much faster
+    \item \textit{methods::as(sf, Class = ``Spatial'')} converts \textit{sf} object to \textit{sp} object
+    \item \textit{sf::st\_as\_sf()} converts \textit{sp} object to \textit{sf} object
+    \begin{itemize}
+        \item Also used to convert dataframe of coordinates to \textit{sf} object
+        \item \textit{sf::st\_as\_sf(pts, coords = c(``lon'', ``lat''), crs = proj4string/EPSG)}
+        \begin{itemize}
+            \item Longitude must be listed first
+        \end{itemize}
+    \end{itemize}
+    \item \textit{sf::st\_write(sf, ``sf.csv'', layer\_options = ``GEOMETRY=AS\_XY'')} to write \textit{sf} object to csv with coordinate information
+    \item \textit{raster::aggregate(raster, fact = factor, fun = function)} used to reduce resolution of raster by a certain factor in each direction (x and y) and function (e.g. taking the mean value)
+    \item \textit{raster::reclassify(raster, rcl = reclas\_matrix)} reclassifies values in ranges to a new value (all specified in matrix)
+    \item Should use projected CRS when doing analysis as will use common distances like meters vs degrees in unprojected CRS
+    \begin{itemize}
+        \item Make sure all layers have the same CRS so calculations make sense and are aligned
+    \end{itemize}
+    \item \textit{sf::st\_buffer(sf, dist = x)} Create a buffer of \textit{x}m around a point/section of a spatial plot
+    \begin{itemize}
+        \item Useful for identifying objects within that buffer
+    \end{itemize}
+    \item \textit{sf::st\_centroid(sf)} useful for calculating geographic centre of polygons
+    \item Defining regions
+    \begin{itemize}
+        \item Bounding box
+        \begin{itemize}
+            \item \textit{sf::st\_bbox(poly)} used to calculate points for bounding box
+            \item \textit{sf::st\_make\_grid(poly, n = 1)} used to create a bounding box around the polygons (or centroids if specified etc)
+            \begin{itemize}
+                \item \textit{n = 1} specifies only want one polygon, rather than multi-row, multi-column grid
+                
+                \begin{figure}[h]
+                    \centering
+                    \caption{Bounding box example}
+                    \label{bounding box}
+                    \includegraphics[width=6cm]{bounding-box.png}
+                \end{figure} 
+
+            \end{itemize}
+        \end{itemize}
+        \item Dissolving features
+        \begin{itemize}
+            \item \textit{sf::st\_union()} 
+            \begin{itemize}
+                \item Dissolves polygons into a single polygon
+                \item Clusters individual points into a MULTIPOINT geometry
+            \end{itemize}
+        \end{itemize}
+        \item Convex Hull
+        \begin{itemize}
+            \item Used to create tighter bounding box around points
+            \begin{itemize}
+                \item Need to cluster individual points (e.g. centroids) into MULTIPOINTS before drawing convex hull
+            \end{itemize}
+            
+            \begin{figure}[h]
+                \centering
+                \caption{Convex hull example}
+                \label{convex hull}
+                \includegraphics[width=6cm]{convex-hull.png}
+            \end{figure} 
+            
+            \item Can be created around buffers that overlap
+            
+            \begin{lstlisting}[language=R]
+                # Buffer the beech trees by 3000
+                beech_buffer <- st_buffer(beech, dist = 3000)
+
+                # Limit the object to just geometry
+                beech_buffers <- st_geometry(beech_buffer)
+
+                # Dissolve the buffers
+                beech_buf_union <- st_union(beech_buffers)
+
+                # Plot the dissolved buffers
+                plot(beech_buf_union)
+
+                # Create the convex hull
+                beech_hull <- st_convex_hull(beech_buf_union)
+            \end{lstlisting}
+
+            \begin{figure}[h]
+                \centering
+                \caption{Overlapping buffers that can be used in a convex hull}
+                \label{convex hull buffer}
+                \includegraphics[width=6cm]{convex-hull-buffer.png}
+            \end{figure} 
+
+        \end{itemize}
+    \end{itemize}
+    \item Multilayer geoprocessing and relationships
+    \begin{itemize}
+        \item \textit{sf::st\_join(out\_df, attr\_df)} used to join two dataframes with spatial information when there are not columns that can be used to link them, so need to join based on geographic information
+        \begin{itemize}
+            \item First object is the df you want as the output (contains most useful information)
+            \item Second object is the df that contains the attributes you want added
+        \end{itemize}
+        \item \textit{sf::st\_intersects(large\_df, small\_df)} shows which geographies intersects
+        \begin{itemize}
+            \item \textit{sf::st\_intersection(large\_df, small\_df)} clips the resulting list so only those that intersect are shown, and not the rest of the polygons
+        \end{itemize}
+        \item \textit{sf::st\_contains(large\_df, small\_df)} shows which geographies are completely contained in another polygon
+        \item \textit{sf::st\_distance(feat1, feat2)} calculates distances between features
+    \end{itemize}
+    \item Geoprocessing with rasters
+    \begin{itemize}
+        \item \textit{raster::mask(raster, mask = poly)} to mask all areas but the polygons of interest
+        \item \textit{raster::crop(raster, mask = poly)} to crop the raster to just include the polygons (cf. bounding box) 
+        \item\textit{raster::extract(raster, poly, fun = mean)} extracts the values from polygons as a list using a function (e.g. NULL returns all values, and mean returns the means from each polygon)
+        \item \textit{raster::overlay(raster1, raster2, fun = func)} allows you to perform functions to rasters e.g. first raster contains elevation, second contains the multiplication values, and the function says to multiple the two rasters together
+    \end{itemize}
+    \item \textit{ggplot2::geom\_sf()} can create maps of \textit{sf} data
+    \begin{itemize}
+        \item \textit{aes(fill = var)} used to create choropleths
+    \end{itemize}
+    \item \textit{tmap::tmap\_arrange(map1, map2, nrow)} allows you to plot multiple maps in a grid
+\end{itemize}
+
 \section{Datacamp: Spatial statistics in R}
+
+
+
+
+
+
 
 \section{Datacamp: Interactive maps with leaflet with R}
 
