@@ -672,7 +672,389 @@ Typical values range between 0 and 10.
 
 \section{Datacamp: Spatial statistics in R}
 
+\begin{itemize}
+    \item The `window' is the study area where events (e.g. points) occur
+    \item Spatial point pattern is the set of observed events and the window
+    \item Spatial point process is stochastic process that generates the points in a window
+    \item Most of spatial point pattern analysis is trying to infer the spatial point process that would produce the dataset (pattern)
+    \item The `mark' are the values observed e.g. height of tree etc
+    \item \textit{spatstat} package very useful
+    \begin{itemize}
+        \item Stores spatial point patterns in \textit{ppp} objects (planar point pattern)
+    \end{itemize}
+    \item Quadrat test used to test spatial randomness
+    \begin{itemize}
+        \item Split window into even subregions
+        \item Count number of events in each subregions 
+        \item Plot histogram of event counts vs number of quadrants
+        \item Should follow Poisson distribution if random
+        \item Use Chi-squared test for observed vs expected
+        \item \textit{spatstat::quadrat.test()}
+    \end{itemize}
+    \item Generally, points can be generated in two different manners:
+    \begin{enumerate}
+        \item Regular (inhibitory) processes that are completely random and follow a uniform Poisson distribution
+        \begin{itemize}
+            \item \textit{spatstat::rpoispp()} useful for generating Poisson point process i.e. spatially random points
+        \end{itemize}
+        \item Clustered processes where points occur more together than under a uniform Poisson process
+        \begin{itemize}
+            \item Thomas process is a clustered pattern where `parent' points are uniformly distributed and `child' points are clustered around the parent
+            \begin{itemize}
+                \item \textit{spatstat::rThomas()} useful for generating a Thomas process
+            \end{itemize}
+            \item Strauss process is a clustered pattern with a \textit{repulsive} point pattern i.e. no points can be closer than a threshold
+            \begin{itemize}
+                \item \textit{spatstat::rStrauss()}
+                \item Sometimes called regularly spaced
+            \end{itemize}
+        \end{itemize}
+    \end{enumerate}
+    \item Quadrat test can lose power with too few or too many subregions
+    \item Other tests don't rely on arbitrary subregions and rely on estimated properties of the process
+    \begin{itemize}
+        \item Nearest neighbour distributions
+        \begin{itemize}
+            \item Plot histogram of NN distances
+            \item Plot cumulative distribution of NN distances (\textit{G(r)}) (\textit{spatstat::nndist()})
+            \item Poisson distribution can be used to calculate cumulative distribution curve ($G(r) = 1 - exp( - \lambda \pi r^2)$)
+            \item \textit{spatstat::Gest()} estimates function \textit{G(r)}
+            \item Need to use edge-correction as events near the edge of the window have less area for a nearest neighbour
+        \end{itemize}
+        \item Ripley's reduced second moment measure (K function)
+        \begin{itemize}
+            \item K is the number of expected events to occur within a given distance scaled by the intensity
+            \item Calculate for all points and plot events vs distance (\textit{spatstat::Kest()})
+            \item For completely random event, should be $\pi \times d^2$
+            \item Needs edge corrections, like \textit{G(r)} test
+            \item Use Monte-Carlo test
+            \begin{itemize}
+                \item Simulate spatially random point patterns in your window and calculate K function plots, before overlaying observed K function
+                \item Calculate \textit{envelope} (the minimum and maximum values at each distance) \textit{spatstat::envelope(ppp, Kest, correction)}
+                \item If larger than simulations at any point - indication of clustering at distance
+                \item If smaller than simulations - indication of inhibitory process
+                \item If use 99 simulations can calculate p-value easily (1/(99+1)) (assuming it is the largest value)
+                \item $plot(K\_cluster\_env, . - pi * r^2 \sim r)$ used to subtract expected K function of Poisson process to help visualize
+            \end{itemize}
+        \end{itemize}
+    \end{itemize}
+    \item Bivariate point pattern
+    \begin{itemize}
+        \item Point pattern map with colors representing different outcomes e.g. cholera vs not cholera
+    \end{itemize}
+    \item Cross nearest neighbour function
+    \begin{itemize}
+        \item Similar to NN but measure nearest distances between \textbf{case and control} events
+    \end{itemize}
+    \item Cross K-function
+    \begin{itemize}
+        \item Similar to K-function, but number of control events expected within radius of case events
+    \end{itemize}
+    \item Null hypothesis for cross-functions is that the proportion of each type is uniform over space
+    \begin{itemize}
+        \item Simplest test is that the cross-functions are identical to regular \textit{G(r)} and \textit{K(r)} functions for cases/controls i.e. no location where cases occur more often that expected
+        \item Can estimate and map rate of cases over study area
+        \begin{enumerate}
+            \item Work out intensity of cases over area
+            \item Work out intensity of cases and controls over area
+            \item Divide 1) by 2) to get proportion of cases
+            \item Use kernel smoothing to get continuous estimate of intensity
+            \begin{enumerate}
+                \item Replace each point in the point pattern with a `kernel'
+                \begin{itemize}
+                    \item Simple localized 2D function centered on the point
+                \end{itemize}
+                \item Add up all the kernels to get smooth intensity
+            \end{enumerate}
+            \begin{itemize}
+                \item \textit{spatstat::density()} will produce kernel density estimates
+                \item \textit{spatstat::split()} will split categorical data into separate point patterns that can be used to calculate and visualize relative proportions (density ratios)
+                \item \textit{spatialkernel::spseg(, opt = 3)} will calculate bandwith for kernel function (use CV to optimize kernel smoothing)
+                \begin{itemize}
+                    \item Use to compute ratio and spatial estimate of the rate of cases
+                    \item \textit{opt = 3} indicates want to calculate p-values
+                \end{itemize}
+            \end{itemize}
+            \item Use Monte-Carlo simulation to calculate uncertainty in estimate
+            \begin{enumerate}
+                \item If there are 200 cases out of 1000 total events, produce 99 simulations where the 200 cases are randomly selected from any of the 1000 events using the kernel function to weigh likelihoods
+                \item Compare density ratio from data to simulated density ratios
+                \item Can plot density ratio estimates with significant areas highlighted based on comparison to simulated densities
+                \begin{itemize}
+                    \item \textit{spatialkernel::plotmc()}
+                \end{itemize}
+            \end{enumerate}
+        \end{enumerate}
+    \end{itemize}
+    \item Space-time
+    \begin{itemize}
+        \item Time point process also has window, but instead has min and max time points, not a polygon
+        \item Usually both spatial and temporal clustering
+        \item Sometimes clusters in both dimensions
+        \begin{itemize}
+            \item Spatial and temporal processes not independent
+        \end{itemize} 
+        \item Can use space-time K function
+        \begin{itemize}
+            \item Expected number of points within distance \textit{d} and time \textit{t}
+            \begin{itemize}
+                \item Creates cylindrical volume of space-time
+            \end{itemize}
+            \item If spatial and temporal processes independent
+            \begin{itemize}
+                \item $K_{st}(s, t) = K_s(s) \times K_t(t)$
+                \item Test independence by checking how two sides of equation differ
+                \item $D(s, t) = K_{st}(s, t) - K_s(s) \times K_t(t)$
+                \item $D(s, t) \approx 0$
+            \end{itemize}
+            \item Test significance using Monte-Carlo simulation for permutation test
+            \begin{itemize}
+                \item Randomly permute event times
+                \item Retains spatial distribution, just breaks links between space and time
+                
+                \begin{figure}[h]
+                    \centering
+                    \caption{Space-Time Monte-Carlo simulation method}
+                    \label{space time mc}
+                    \includegraphics[width=10cm]{space-time-mc.png}
+                \end{figure}
 
+                \item  Compare observed $D(s, t)$ vs distribution of simulated values
+            \end{itemize}
+            \item \textit{splancs::stmctest()} used, but requires matrix rather than df
+        \end{itemize}
+    \end{itemize}
+    \item Often don't have point data, e.g. due to confidentiality, instead have areas with subregions summarized
+    \begin{itemize}
+        \item \textit{spdep::spplot(spdf, "var")} good way to quickly create choropleth
+    \end{itemize}
+    \item Simple null hypothesis is that regions are spatially random
+    \begin{itemize}
+        \item Alternative is that there is local spatial structure i.e. neighbours might be more similar than expected under random hypothesis
+        \begin{itemize}
+            \item \textbf{Spatial autocorrelation}
+        \end{itemize}
+        \item Define neighbours:
+        \begin{itemize}
+            \item Adjacent: 2 regions that share a boundary
+            \item Any two regions within a distance
+            \item \textit{spdep::poly2nb()} calculates the neighbours of polygons and creates an \textit{nb} object
+        \end{itemize}
+        \item Moran I statistic tests local similarity
+        \begin{equation}
+            I = \frac{n}{\sum_i \sum_j w_{ij}} \frac{\sum_i \sum_j w_{ij} (z_i - \bar{z})(z_j - \bar{z})}{\sum_i (z_i - \bar{z})^2}
+        \end{equation}
+        \begin{itemize}
+            \item Sum of contributions from two neighbouring pairs
+            \item If two neighbours both above or below mean, then positive amount
+            \begin{itemize}
+                \item Neighbours are similar
+            \end{itemize}
+            \item If two neighbours either side of mean, then contributes a negative amount
+            \begin{itemize}
+                \item Neighbours are dissimilar
+            \end{itemize}
+            \item Use MC simulation by randomly arranging numbers over region and compare observed I statistic to distribution of I statistics
+            \item \textit{spdep::moran.test(var, wnb)}
+            \begin{itemize}
+                \item Needs a weighted \textit{nb} object
+                \item \textit{spdep::nb2listw()} creates weighted \textit{nb} object
+            \end{itemize}
+        \end{itemize}
+    \end{itemize}
+    \item Use \textit{Standardized Mortality Ratio} to observe difference in health data between regions
+    \begin{itemize}
+        \item $SMR_i = \frac{O_i}{E_i}$
+        \item Create \textit{Exceedance Probability Map}
+        \begin{itemize}
+            \item Triggers alert when SMR in region is above threshold with certain probability (using binomial distribution to calculate CIs and distribution around SMR)
+
+\begin{lstlisting}[language=R]
+    # Probability of a binomial exceeding a multiple (e) of expected deaths
+    binom.exceed <- function(observed, population, expected, e){
+        1 - pbinom(e * expected, population, prob = observed / population)
+    }
+\end{lstlisting}
+
+        \end{itemize}
+    \end{itemize}
+    \item Generalized Linear Models can be fit to spatial data
+    \begin{itemize}
+        \item $Y \sim N(X \beta, \sigma^2)$ standard linear model formula
+        \item $Y \sim D(\mu(X \beta))$ equation for generalized linear models
+        \begin{itemize}
+            \item $D$ is the distribution chosen
+            \item $\mu$ is the \textit{link function} that transforms the $X \beta$ term appropriately for the distribution
+            \item e.g. $Y \sim \text{Poisson}(\exp(X \beta))$ where $D =$ Poisson, and $\mu = \exp()$ 
+        \end{itemize}
+        \item Should visualize residuals vs map to check if there is spatially smooth correlation
+        
+        \begin{figure}[h]
+            \centering
+            \caption{Map residuals to check for spatially smooth correlation}
+            \label{spatial residuals}
+            \includegraphics[width=7cm]{spatial-residuals.png}
+        \end{figure}
+
+        \item \textit{spdep::moran.mc(res, wnb)} can use Monte-Carlo simulation to test if spatial correlation of residuals using a weight \textit{nb} object
+        \item Dealing with spatially correlated residuals
+        \begin{enumerate}
+            \item See if variable not included in model can be used to explain correlation e.g. age-structure of population, or pollution intensity, by refitting model with added variables
+            \item Add spatial feature to model to create a \textbf{conditional auto-regression (CAR)} model
+            \begin{itemize}
+                \item $Y = X \beta + S(x, y)$
+                \item $S(x, y)$ could be a continuous function over space, but can be easier to define for each unit
+                \begin{itemize}
+                    \item $S_i \sim N(\bar{S}_{j \sim i}, \sigma_i^2)$ is one example where for a region $i$, $S$ comes from normal distribution with  mean equal to mean of the neighbouring regions, with variance to be fitted
+                    
+                    \begin{figure}[h]
+                        \centering
+                        \caption{BYM spatial correlation linear model component}
+                        \label{bym spatial correlation}
+                        \includegraphics[width=8cm]{bym-spatial-correlation.png}
+                    \end{figure}
+
+                \end{itemize}
+                \item Hard to maximise likelihood, so instead used Bayesian inference
+                \begin{itemize}
+                    \item Don't get mean and variance of normal distribution of parameter
+                    \item Instead get samples that give posterior distribution of parameter - the probability distribution of a parameter given the data
+                    \item Use samples to compute credible intervals of posterior distribution
+                    \item \textit{R2BayesX::bayesx(resp ~ vars + sx(i, bs = "spatial", map = gra))} used to add spatial component
+                    \item \textit{gra} object required for map (not \textit{nb}) so use \textit{R2BayesX::nb2gra(nb)} to convert
+                    \item \textit{residuals(mod\_fit)[, "mu"]} will add residuals to \textit{spdf} based on rates, not counts, so can be compared across regions with different populations
+                \end{itemize}
+            \end{itemize}
+        \end{enumerate}
+    \end{itemize}
+    \item Measurement type will vary geostatistical method used e.g. continuous vs count
+    \item Initial geostatistical approaches
+    \begin{enumerate}
+        \item Map variables to see large-scale trend
+        \begin{itemize}
+            \item Fit trends explicitly as function of coordinates
+        \end{itemize}
+        \item Show strips in one direction (anisotropy - directionality)
+        \begin{itemize}
+            \item Consider anisotropic effects
+        \end{itemize}
+        \item Discontinuities where values change rapidly
+        \begin{itemize}
+            \item Model need to add barriers when calculating distance
+        \end{itemize}
+    \end{enumerate}
+    \item Need to describe correlations between points by distance
+    \begin{itemize}
+        \item Variogram cloud
+        \begin{itemize}
+            \item Plots half the squared difference between points vs distances
+            \begin{itemize}
+                \item Known as the \textbf{semi-variance}
+                \item Half because difference between A-B is the same as B-A
+            \end{itemize}
+
+            \begin{figure}[h]
+                \centering
+                \caption{Variogram cloud}
+                \label{variogram cloud}
+                \includegraphics[width=14cm]{variogram-cloud.png}
+            \end{figure}
+
+            \item \textit{gstat::variogram(resp $\sim$ coords, cloud = TRUE)}
+        \end{itemize}
+        \item Variogram (incorrectly also called ``semi-variogram'')
+        \begin{itemize}
+            \item Bin the variogram cloud distance
+            \item Average the values in each bin
+            \begin{itemize}
+                \item Enough values to provide a good estimate of the mean
+            \end{itemize}
+            \item Plot mean values vs center of the distance bins
+            \item If semivariance flattens off, semivariance = variance of the data
+            \item Fit model to variogram
+            \begin{itemize}
+                \item Current preferred model is the \textbf{matern} class of model due to its differentiability properties
+            
+                \begin{equation}
+                    C(d) = \sigma^2 \frac{2^{(1 - \nu)}}{\Gamma (\nu)}\left(\sqrt{2 \nu}\frac{d}{\rho}\right)^\nu K_\nu \left(\sqrt{2 \nu}\frac{d}{\rho}\right)
+                \end{equation}
+                
+                \item \textit{gstat::fit.variogram(vario, model = vgm(parms))}
+                \item Have to estimate parameters (nugget, partial sill, range)
+            \end{itemize}
+        \end{itemize}
+    \end{itemize}
+    \item Kriging uses model fit from variogram and interpolates data points
+    \begin{itemize}
+        \item Simplest when response is continuous variable that is assumed to be Guassian (normally distributed)
+        \item Prediction variance smallest when closest to data points
+        \begin{itemize}
+            \item If nugget = 0, then estimate will go through the data point
+        \end{itemize}
+        \item \textit{gstat::krige(form, val\_df, miss\_df, model = vario)} will predict the missing values
+    \end{itemize}
+    \item Prediction maps
+    \begin{itemize}
+        \item Will use kriging, but first need to create a \textit{SpatialPixels} object
+        
+\begin{lstlisting}[language=R]
+    # ca_geo, geo_bounds have been pre-defined
+    ls.str()
+
+    # Plot the polygon and points
+    plot(geo_bounds); points(ca_geo)
+
+    # Find the corners of the boundary
+    bbox(geo_bounds)
+
+    # Define a 2.5km square grid over the polygon extent. The first parameter is
+    # the bottom left corner, the second is the width and height of each 
+    # rectangle in the grid. The third specifies the number of rectangles in
+    # each direction.
+    grid <- GridTopology(c(537853, 5536290), c(2500, 2500), c(72, 48))
+
+    # Create points with the same coordinate system as the boundary
+    gridpoints <- SpatialPoints(grid, proj4string = CRS(projection(geo_bounds)))
+    plot(gridpoints)
+
+    # Crop out the points outside the boundary
+    cropped_gridpoints <- crop(gridpoints, geo_bounds)
+    plot(cropped_gridpoints)
+
+    # Convert to SpatialPixels (sp object equivalent)
+    spgrid <- SpatialPixels(cropped_gridpoints)
+    coordnames(spgrid) <- c("x", "y")
+    plot(spgrid)
+\end{lstlisting}
+
+        \item Pass \textit{SpatialPixels} grid as the new data to the \textit{gstat::krige()} function
+        \item \textit{automap::autoKrige(form, input\_data, new\_data, model)} will quickly fit variogram and use kriging
+        \begin{itemize}
+            \item Pass to \textit{plot()} function to plot kriging predictions, standard error, and variogram
+            \item Use a \textit{SpatialPixels} grid to produce a surface rather than individual points
+            \item Need to carefully check results to make sure the results make sense e.g. has small nugget and rises to reach sill
+            \item Only possible when meets assumption of Guassian data
+        \end{itemize}
+    \end{itemize}
+    \item Working with non-Guassian data in kriging
+    \begin{itemize}
+        \item Trans-Guassian kriging transforms sample values to approximate Guassian distribution
+        \item Model-based geostatistics
+        \begin{itemize}
+            \item Use bayesian statistics for inference e.g. Markov-Chain Monte-Carlo samplers to estimate paramter distributions
+            \item Computationally intensive
+        \end{itemize}
+        \item Nested variograms
+        \begin{itemize}
+            \item Spatial correlation may not be well-fit to single variogram function
+            \begin{itemize}
+                \item Particularly if spatial structure on more than one level
+            \end{itemize}
+            \item Fit variograms to different components and create combined function
+            \item May be possible to overfit and precise fit may not affect final model output much
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
 
 
 
