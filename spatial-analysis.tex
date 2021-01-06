@@ -1056,11 +1056,118 @@ Typical values range between 0 and 10.
     \end{itemize}
 \end{itemize}
 
-
-
-
-
 \section{Datacamp: Interactive maps with leaflet with R}
+
+\begin{itemize}
+    \item Leaflet uses `tiles' to create layers of maps e.g. basemap, markers etc
+    \begin{itemize}
+        \item Specify different tile using \textit{leaflet::addProviderTiles()}
+    \end{itemize}
+    \item Use \textit{ggmap::geocode(location = "address")} to return lon-lat for address
+    \item Set default view using two different methods
+    
+    \begin{figure}[h]
+        \centering
+        \caption{Set Leaflet default view}
+        \label{leaflet default view}
+        \includegraphics[width=14cm]{leaflet-default-view.png}
+    \end{figure}
+    
+    \begin{itemize}
+        \item \textit{leaflet::clearBounds()} removes previously saved default views
+    \end{itemize}
+    \item Can restrict panning etc using \textit{leaflet::leaflet(options = leaflet\_options(minZoom = x, dragging = FALSE))}
+    \item \textit{leaflet::addMarkers(lng = df\$lon, lat = df\$lat, popup = df\$desc)} can add markers from a df with text descriptions that show when clicked
+    \begin{itemize}
+        \item \textit{leaflet::addPopups()} alternative that don't show markers
+        \item \textit{leaflet::clearMarkers()} removes previously added markers
+        \begin{itemize}
+            \item Useful if saved basemap object and want to replace markers for specific map
+            \item \textit{leaflet::addCircleMarkers()} can be a useful alternative when pin markers overlap - similar to scatter plot
+        \end{itemize}
+    \end{itemize}
+    \item If you pipe the data to the map, no need to specify dataframe for every option e.g. longitudes etc.
+    \begin{itemize}
+        \item Need to use the $\sim$ symbol though e.g. \textit{leaflet::addCircleMarkers(label = $\sim$paste0(``\textless b \textgreater'', name, ``\textless /b \textgreater''))}
+        \begin{itemize}
+            \item Specifying \textit{label} instead of \textit{popup} means the information is available on hover, rather than click
+        \end{itemize}
+    \end{itemize}
+    \item To add color to markers, polygons etc:
+    \begin{enumerate}
+        \item Specify a colour palette (depends on variable type) e.g.:
+        \begin{itemize}
+            \item \textit{pal \textless- colorFactor(palette = c(``red'', ``blue'', ``\#9b4a11''), levels = c(``Public'', ``Private'', ``For-Profit''))}
+            \item \textit{pal \textless- colorNumeric(palette = ``reds'', domain = c(1:50), reverse = TRUE)}
+            \item \textit{pal \textless- colorBin(palette = ``reds'', bins, domain = c(1:50))}
+            \item \textit{pal \textless- colorQuantile(palette = ``reds'', n, domain = c(1:50))}
+        \end{itemize}
+        \item \textit{leaflet::addCircleMarkers(col = $\sim$pal(var))}
+        \item Add legend
+        \begin{itemize}
+            \item \textit{leaflet::addLegend(pal = pal, values = c(``Public'', ``Private'', ``For-Profit''), opacity, title, position)}
+        \end{itemize}
+    \end{enumerate}
+    \item Can make map more easily searchable with \textit{leaflet.extras} package
+    \begin{itemize}
+        \item Can geocode directly in the map without needing \textit{ggmap::geocode()}
+        \item \textit{addSearchOSM()} allows users to search for locations
+        \item \textit{addReverseSearchOSM()} shows lon and lat when picked dropped
+        \item \textit{addResetMapButton()} provides an icon to revert to default view
+        \item \textit{addSearchFeatures(targetGroups, options = searchFeaturesOptions(zoom))} allows users to search specific groups of markers and zoom in once identified
+    \end{itemize}
+    \item Can add markers in layers to allow groups to be toggled on and off
+    \begin{itemize}
+        \item Have to create subsets of the dataframe before adding separately
+        \begin{itemize}
+            \item Because adding in layers, order matters to stacking
+        \end{itemize}
+
+\begin{lstlisting}[language=R]
+    # Load the htmltools package to clean up characters that may be 
+    # interpreted as HTML
+    library(htmltools)
+
+    # Create data frame called public with only public colleges
+    public <- filter(ipeds, sector_label == ``Public'')  
+
+    # Create a leaflet map of public colleges called m3 
+    m3 <- leaflet() %>% 
+            addProviderTiles(``CartoDB'') %>% 
+            addCircleMarkers(
+                data = public, radius = 2, label = ~htmlEscape(name),
+                color = ~pal(sector_label), group = ``Public''
+                ) %>%
+            addLayersControl(overlayGroups = c(``Public''))
+\end{lstlisting}
+
+    \end{itemize}
+    \item Similarly, can add multiple basemap layers
+    \begin{itemize}
+        \item Only one can be viewed at a time
+        
+\begin{lstlisting}[language=R]
+    leaflet() %>% 
+        addTiles(group = ``OSM'') %>%
+        addProviderTiles(``CartoDB'', group = ``Carto'') %>% 
+        addProviderTiles(``Esri'') %>% 
+        addLayersControl(baseGroups = c(``OSM'', ``Carto'', ``Esri''))
+\end{lstlisting}
+
+        \item Last basemap layer will be the one that is shown, unless chosen otherwise using toggle
+
+    \end{itemize}
+    \item Can cluster observations together
+    \begin{itemize}
+        \item \textit{addCircleMarkers(clusterOptions = markerClusterOptions())}
+    \end{itemize}
+    \item Can create choropleths
+    \begin{itemize}
+        \item \textit{leaflet::addPolygons(weight, color, label, highlight = highlightOptions)}
+        \item \textit{pal \textless- colorBin(palette = ``reds'', bins, domain = sp@data\$var)}
+    \end{itemize}
+    \item \textit{htmlwidgets::saveWidget()}
+\end{itemize}
 
 
 
