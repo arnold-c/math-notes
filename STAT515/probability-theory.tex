@@ -1,0 +1,119 @@
+\documentclass{article}
+\usepackage[margin=1.5cm]{geometry}
+\usepackage{microtype} % Slightly better kerning
+\usepackage{fixltx2e} % Allow text subscript
+\usepackage{graphicx}
+\graphicspath{ {./figs/} }
+\usepackage[colorlinks=true]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1em}
+\usepackage{fancyhdr} % Needed to adjust page numbering
+\usepackage{lastpage} % Counts total number of pages
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt} % Remove header line
+\cfoot{\thepage \hspace{1pt} of \pageref*{LastPage}} % Customize page nums
+
+
+\usepackage{amsmath}
+\usepackage{upgreek}
+
+\title{Probability Theory Notes}
+
+\begin{document}
+\maketitle
+
+\section{Introduction to Probability Models (Ross)}
+\subsection{Sample Space and Events}
+
+The set of all possible outcomes of an experiment is known as the 
+\textit{sample space} $\Omega$ (or denoted $S$) e.g. when flipping two coins 
+(each once)
+
+\begin{equation}
+    S = \left\{(H,H), (H,T), (T,H), (T,T)\right\}
+\end{equation}
+
+Any subset $E$ of the sample space is known as an \textit{event} e.g. when 
+the event is flipping a heads on the first coin
+
+\begin{equation}
+    E = \left\{(H,H), (H,T)\right\}
+\end{equation}
+
+We use the symbol $\cup$ (\textit{union})to denote ``or'', for example, if 
+$E = \left\{1,3,5\right\}$ and $F = \left\{1,2,3\right\}$, then:
+
+\begin{equation}
+    E \cup F = \left\{1, 2, 3, 5\right\}
+\end{equation}
+
+We use the symbol $\cap$ (\textit{intersection}) to denote ``and'', for example,
+if $E = \left\{1,3,5\right\}$ and $F = \left\{1,2,3\right\}$, then:
+
+\begin{equation}
+    E \cap F = \left\{1, 3\right\}
+\end{equation}
+
+Note that $E \cap F$ is more commonly written as $EF$
+
+If $E$ amd $F$ are \textit{mutually exclusive} e.g. $E = \left\{H\right\}$ and
+$F = \left\{T\right\}$, then null event (\textit{the empty set}) is given by 
+$\emptyset$
+
+Can define unions and intersections of more than two events using:
+
+\begin{equation}
+    \bigcap_{n=1}^{\infty} E_n \text{ and }
+    \bigcup_{n=1}^{\infty} E_n
+\end{equation}
+
+We use the symbol $E^c$ to denote the \textit{compliment} i.e. all outcomes in 
+set that are not in $E$. Therefore $S^c = \emptyset$
+
+\subsection{Probabilities Defined on Events}
+
+For events $E$ in $S$ we assume:
+
+\begin{gather}
+    0 \le P(E) \le 1 \\
+    P(S) = 1 \\
+    E_n E_m = \emptyset \text{ when } n \neq m \text{, then:} \\
+    P\left(\bigcup_{n = 1}^{\infty}E_n\right) = \sum_{n = 1}^\infty P(E_n)
+\end{gather}
+
+For two events $E$ and $F$, we must avoid double counting:
+
+\begin{equation}
+    P(E \cup F) = P(E) + P(F) - P(EF)
+\end{equation}
+
+Note that when $F = E^c$, $P(EF) = \emptyset$, so $P(E \cup F) = P(E) + P(F)$. 
+This can be extended to multiple events, such as:
+
+\begin{align*}
+    P(E \cup F \cup G) &= (P((E \cup F) \cup G)) \\
+    &= P(E \cup F) + P(G) - P((E \cup F)G) \\
+    &= ... \\
+    &= P(E) + P(F) + P(G) - P(EF) - P(EG) - P(FG) + P(EFG)
+\end{align*}
+
+More generally:
+
+\begin{align*}
+    P(E_1 \cup E_2 \cup \cdots \cup E_n) &= \sum_i P(E_i) - \sum_{i<j}P(E_i E_j) \\
+    &+ \sum_{i<j<k}P(E_i E_j E_k) - \cdots +(-1)^{n+1}P(E_1 E_2 \cdots E_n)
+\end{align*}
+
+This is the \textit{inclusion-exclusion identity} (when extended to $n$ events),
+stating that the probability of the union of $n$ events is the sum of the 
+probabilities taken one at a time, minus the sum of the probabilities taken
+two at a time plus the sum of the probabilities taken three at a time ...
+
+\subsection{Conditional Probabilities}
+
+
+
+
+\end{document}
