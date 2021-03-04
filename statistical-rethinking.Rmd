@@ -15,6 +15,10 @@ This is a notebook that contains notes and code generated whilst going through
 Richard McElreath's Statistical Rethinking book (2nd ed). Each chapter's comments
 and answers to the questions will be copied and posted on my website.
 
+> **_NOTE:_** At present the sub-subsection numbers are not correct as I am not
+including every sub-subsection. The section and subsection numbers should 
+correspond to the correct values in the book
+
 # The Golem of Prague
 
 Chapter one primarily summarizes the motivations behind the book, and a shift
@@ -134,7 +138,83 @@ $\text{Pr}(W, L \mid p) \propto  \text{Pr}(W, L \mid p) \times \text{Pr}(p)$
 - Often it is not possible to *condition* the prior on the data, so much use
 numerical approximations each with different limitations and assumptions
   - Grid approximation
-    - Converts continuous parameters to finite grids of values
-    - Doesn't scale well with increasing number of parameters
   - Quadratic approximation
   - MCMC
+  
+### Grid approximation
+  
+- Converts continuous parameters to finite grids of values
+- Limitations
+  - Doesn't scale well with increasing number of parameters
+
+Let's have  a look at the binomial example used in the book. Here I turn it into
+a function so I can try different priors easily (shown in the book).
+
+```{r}
+p_grid <- seq(0, 1, 0.05)
+
+grid_approx <- function(prior){
+  # Calculation
+  likelihood <- dbinom(6, 9, p_grid)
+  unstd_post <- likelihood * prior
+  post <- unstd_post / sum(unstd_post)
+  
+  # Plotting
+  plot <- plot(p_grid, post, type = "b")
+}
+```
+
+
+```{r}
+par(mfrow = c(2, 2))
+grid_approx(prior = rep(1, 20))
+grid_approx(prior = ifelse(p_grid < 0.5, 0, 1))
+grid_approx(prior = exp(-5 * abs(p_grid - 0.5)))
+```
+
+### Quadratic approximation
+
+- Assumption that the peak of the posterior distribution can be approximated
+by a Guassian distribution
+  - First find peak using some optimization algorithm (often based on slopes)
+  - The log of the Guassian (posterior) is a parabola (i.e. quadratic function)
+  - In some instances, is exactly correct
+- Computationally inexpensive relative to grid approximation and MCMC
+- Limitations
+
+We'll use the `quap()` function in the `{rethinking}` package to demonstrate a
+binomial example. As in the book, the blue curve is the posterior distribution
+calculated numerically using the beta distribution, and the black line is the
+quadratic approximation. The key insight is that increasing the amount of data
+increases the accuracy of the approximation. This is why frequentist statistics
+heavily relies on sample size, as the quadratic approximation is involved. 
+However, just because it improves with *n*, doesn't mean high *n* = good model.
+
+```{r}
+library(rethinking)
+
+quad_approx <- function(W, L){
+  globe_qa <- quap(
+    alist(
+      W ~ dbinom(W+L, prob = p),
+      p ~ dunif(0, 1)
+    ),
+    data = list(W = W, L = L)
+  )
+
+  mean <- precis(globe_qa)$mean
+  sd <- precis(globe_qa)$sd
+  
+  curve(dbeta(x, W + 1, L + 1), from = 0, to = 1, col = "blue")
+  curve(dnorm(x, mean, sd), add = TRUE)
+  mtext(text = glue::glue("n = {W + L}"))
+}
+```
+
+```{r}
+par(mfrow = c(1, 3))
+quad_approx(W = 6, L = 3)
+quad_approx(W = 18, L = 12)
+quad_approx(W = 36, L = 24)
+```
+
