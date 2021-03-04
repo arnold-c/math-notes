@@ -8,7 +8,6 @@ output:
     toc: TRUE
     toc_float: TRUE
     number_sections: TRUE
-    keep_md: TRUE
     code_folding: hide
 ---
 
