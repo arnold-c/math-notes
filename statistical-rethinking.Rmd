@@ -144,7 +144,7 @@ $\text{Pr}(W, L \mid p) \propto  \text{Pr}(W, L \mid p) \times \text{Pr}(p)$
 numerical approximations each with different limitations and assumptions
   - Grid approximation
   - Quadratic approximation
-  - MCMC
+  - Markov Chain Monte-Carlo (MCMC)
   
 ### Grid approximation
   
@@ -230,3 +230,4 @@ quad_approx(W = 18, L = 12)
 quad_approx(W = 36, L = 24)
 ```
 
+### Markov Chain Monte-Carlo
