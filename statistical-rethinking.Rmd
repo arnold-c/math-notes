@@ -11,6 +11,11 @@ output:
     code_folding: hide
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.align = "center")
+```
+
+
 This is a notebook that contains notes and code generated whilst going through
 Richard McElreath's Statistical Rethinking book (2nd ed). Each chapter's comments
 and answers to the questions will be copied and posted on my website.
@@ -176,11 +181,14 @@ grid_approx(prior = exp(-5 * abs(p_grid - 0.5)))
 
 - Assumption that the peak of the posterior distribution can be approximated
 by a Guassian distribution
-  - First find peak using some optimization algorithm (often based on slopes)
+  - First find peak using some optimization algorithm (often based on calculating
+  Hessians - the 2nd derivate of the parabola - which is proportional to its std)
   - The log of the Guassian (posterior) is a parabola (i.e. quadratic function)
   - In some instances, is exactly correct
 - Computationally inexpensive relative to grid approximation and MCMC
 - Limitations
+  - Only accurate approximation near the peak of the posterior
+  - Relies on decent sample size
 
 We'll use the `quap()` function in the `{rethinking}` package to demonstrate a
 binomial example. As in the book, the blue curve is the posterior distribution
@@ -189,6 +197,10 @@ quadratic approximation. The key insight is that increasing the amount of data
 increases the accuracy of the approximation. This is why frequentist statistics
 heavily relies on sample size, as the quadratic approximation is involved. 
 However, just because it improves with *n*, doesn't mean high *n* = good model.
+
+> _**NOTE:**_ The Beta distribution is a probability distribution of probabilities
+with $\text{Beta}(\alpha, \beta) \text{ where: } \mu = \frac{\alpha}{\alpha \beta}$
+see [this answer](https://stats.stackexchange.com/questions/47771/what-is-the-intuition-behind-beta-distribution)
 
 ```{r}
 library(rethinking)
