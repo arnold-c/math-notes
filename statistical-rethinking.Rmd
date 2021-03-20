@@ -195,7 +195,7 @@ binomial example. As in the book, the blue curve is the posterior distribution
 calculated numerically using the beta distribution, and the black line is the
 quadratic approximation. The key insight is that increasing the amount of data
 increases the accuracy of the approximation. This is why frequentist statistics
-heavily relies on sample size, as the quadratic approximation is involved. 
+heavily relies on sample size, as the quadratic approximation is involved.
 However, just because it improves with *n*, doesn't mean high *n* = good model.
 
 > _**NOTE:**_ The Beta distribution is a probability distribution of probabilities
@@ -231,3 +231,128 @@ quad_approx(W = 36, L = 24)
 ```
 
 ### Markov Chain Monte-Carlo
+
+- Useful for multilevel models where posterior can't be expressed in one 
+equation simply
+- Draws samples from posterior distribution and uses relative frequencies of 
+parameter values as plausibility
+  - Don't directly compute or approximate the posterior distribution
+  
+## Practice
+
+### E1
+
+2 ($\text{Pr}(\text{rain} | \text{Monday})$) and 4 
+($\text{Pr}(\text{rain, Monday}) / \text{Pr}(\text{Monday})$)
+
+### E2
+
+3 (The probability that it's Monday, given it's raining)
+
+### E3
+
+1 ($\text{Pr}(\text{Monday} | \text{rain})$) and 4 
+$\left(\frac{\text{Pr}(\text{rain} | \text{Monday}) \text{Pr}(\text{Monday})}{\text{Pr}(\text{rain})}\right)$
+
+> _**NOTE:**_ The numerator is the joint probability of it raining and being 
+Monday, so we divide by the probability of it raining to get the probability of
+it being Monday conditioned on it raining
+
+### E4
+
+This statement implies that we are uncertain each time we toss the globe 
+whether we'll land on land or water, but on average, we are assuming that we
+will land on water 70% of the time (as it covers 70% of the surface and we're
+assuming an unbiased globe so each point it equally likely to be picked), and we
+have no knowledge that would allow us to predict exactly where it would land.
+
+### M1
+
+```{r}
+p_grid <- seq(0, 1, 0.01)
+
+grid_approx <- function(prior, W, tot){
+  # Calculation
+  likelihood <- dbinom(W, tot, p_grid)
+  unstd_post <- likelihood * prior
+  post <- unstd_post / sum(unstd_post)
+  
+  # Plotting
+  plot <- plot(p_grid, post, type = "l")
+  mtext(text = glue::glue("{W} W / {tot} total"))
+}
+```
+
+- In clockwise plot order with a uniform prior
+  - W W W
+  - W W W L
+  - L W W L W W W
+
+```{r}
+par(mfrow = c(2, 2))
+grid_approx(prior = rep(1, 100), W = 3, tot = 3)
+grid_approx(prior = rep(1, 100), W = 3, tot = 4)
+grid_approx(prior = rep(1, 100), W = 5, tot = 7)
+```
+
+### M2
+
+- In clockwise plot order with a step prior
+  - W W W
+  - W W W L
+  - L W W L W W W
+
+```{r}
+par(mfrow = c(2, 2))
+grid_approx(prior = ifelse(p_grid < 0.5, 0, 1), W = 3, tot = 3)
+grid_approx(prior = ifelse(p_grid < 0.5, 0, 1), W = 3, tot = 4)
+grid_approx(prior = ifelse(p_grid < 0.5, 0, 1), W = 5, tot = 7)
+```
+
+### M3
+
+\begin{aligned}
+  \text{Pr}(\text{Earth} | \text{Land}) &= \frac{\text{Pr}(\text{Land} | \text{Earth}) \text{Pr}(\text{Earth})}{\text{Pr}(\text{Land})} \\
+  &= \frac{0.3 \times 0.5}{(1 + 0.3) / (1 + 1)} \\
+  &\approx 0.23
+\end{aligned}
+
+### M4
+
+The B/B card has 2 ways of producing a B side up, the B/W card has 1 way of 
+producing B side up, and the W/W card has 0 ways. Therefore the probability of
+the other side being B is 2 / (2 + 1)
+
+### M5
+
+There are 2 ways of approaching this problem: 1st, repeat the method above, and
+2nd, update our answer from above.
+
+1) we end up with 4 ways of picking B from B/B and 1 way from B/W, so p = 0.8
+2) The prior odds are 2:1, which we multiply by 2 (the number of ways of picking
+B with our new card) resulting in a posterior odds of 4:1, which converted to a
+probability is p = 0.8
+
+### M6
+
+There are 2 ways of picking B from the B/B card, and 1 way from B/W, as in M4. 
+However, the relative frequencies are 1 and 2, respectively. Multiplying the 
+number of ways of selecting B from each card by its frequency we get a posterior 
+odds of 2:2, i.e. p = 0.5
+
+### M7
+
+Starting with the first card:
+
+- There are 2 ways to see B from B/B
+  - There is 1 way to see W from B/W and 2 ways from W/W (the remaining cards)
+  - Multiplying the ways: $2 \times (1 + 2) = 6$
+- There is 1 way to see B from B/W
+  - There are 2 ways to see W from W/W and 0 from B/B (the remaining cards)
+  - Multiplying the ways: $1 \times (2 + 0) = 2$
+- In 6 of the 8 ways of getting B then W, the first card is B/B, so p = 0.75
+
+### H1
+### H2
+### H3
+### H4
