@@ -1,0 +1,784 @@
+---
+title: "Statistical Rethinking Notes"
+subtitle: "2nd Edition"
+author: "Callum Arnold"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    number_sections: TRUE
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.align = "center")
+```
+
+This is a notebook that contains notes and code generated whilst going through
+Richard McElreath's Statistical Rethinking book (2nd ed). Each chapter's
+comments and answers to the questions will be copied and posted on my website.
+
+> ***NOTE:*** At present the sub-subsection numbers are not correct as I am not
+> including every sub-subsection. The section and subsection numbers should
+> correspond to the correct values in the book
+
+# The Golem of Prague
+
+Chapter one primarily summarizes the motivations behind the book, and a shift
+away from traditional frequentist statistical analysis that aim to falsify a
+null hypothesis using a statistical model selected from a flowchart, to a
+Bayesian framework that focuses on model comparison and evaluation, multilevel
+models as the norm, and evaluating the different process models that may link
+your statistical model to your hypotheses.
+
+# Small Worlds and Large World
+
+-   Can think of models as small worlds vs large worlds:
+
+    -   They are at best a small version of reality
+    -   Often they fail to test/be able to test for a number of errors and
+        possibilities
+    -   Should always seek to ensure the model performs under favourable
+        assumptions
+
+-   Bayesian models are well suited as they are designed to account for this
+
+    -   Particularly when frequently tested against reality and updated
+
+## The garden of forking data
+
+-   Bayesian inferece is primarily just counting and comparing possibilities
+
+    -   All possible outcomes (conjectures) are considered, and options "pruned"
+        as more data is considered that do not provide evidence for these
+        outcomes
+
+-   Example:
+
+    -   Count all the ways the observed data can be observed for each conjecture
+
+    -   Consider the relative plausibilities of each conjecture
+
+        -   Take counts from the first round, and instead of starting again, use
+            as your *prior* for each additional data point
+
+            -   Count the number of ways each conjecture can produce the
+                individual data point, and multiply this value by the *prior*
+                count
+            -   Requires that new data is logically independent of previous,
+                otherwise recalculate from the start
+            -   Doesn't require new data to be the same type
+
+        -   Convert to probabilities
+
+            -   Counts become harder to manage as they increase and we're only
+                interested in the relative size of the counts
+
+-   Important components of Bayesian formula:
+
+    -   Parameter value
+
+        -   Conjectured proportion
+
+    -   Likelihood
+
+        -   Relative number of ways the parameter value can produce the data
+
+    -   Prior probability
+
+        -   Initial probability of seeing the parameter value
+
+    -   Posterior probability
+
+        -   Probability of seeing the parameter value after accounting for the
+            new data
+
+## Building a model
+
+-   Basic process of Bayesian modelling
+
+    1.  Determine possible ways data can be observed
+
+    -   Often need to describe underlying reality as well as sampling process
+    -   Be specific with story and resolve ambiguities
+
+    2.  Update model by adding data
+
+    -   Plausibility of each value of *p*, the estimate of the true value of the
+        parameter, is updated as more data is added
+    -   Because it it iterative, you can calculate the distributions both
+        forwards and backwards given all the data points
+    -   Means that no minimum sample size is required to be valid (just the
+        inferences will be less clear as wider distribution), but small sample
+        sizes are sensitive to priors
+
+    3.  Evaluate model and revise
+
+    -   Inferences are conditional to the model, so may be incredibly confident
+        in model A, but very different with a different model
+    -   Need to consider the model assumptions, e.g. order of data doesn't
+        matter, so that we can consider validity of the model's inferences
+        (which aren't affected by data it doesn't consider)
+    -   These checks confirm the model's adequacy for a specific purpose
+
+## Components of the model
+
+-   Need to explicitly name the variables and provide definitions
+
+-   Variables
+
+    -   First variable is target of interest (often a proportion)
+    -   Unobserved variables often called parameters
+    -   Observed variables are the data
+
+-   Definitions
+
+    -   Build a model that relates a variable to the others
+
+    -   For each parameter, define the probability of seeing each observed
+        variable values (data point)
+
+        -   Then, for each parameter, define the prior plausibility of each of
+            these values
+
+            -   Each specific value of *p* corresponds to a specific
+                plausibility of the data
+            -   We define the plausibility with a distribution (sometimes called
+                the likelihood, but not technically correct in a Bayesian sense)
+            -   When there are only 2 possible outcomes, we use the binomial
+                distribution
+            -   For 6 successes in 9 bernoulli trials with prior plausibility
+                0.5 (*p*), the plausibility = `r dbinom(6, 9, prob = 0.5)`
+
+        -   Each parameter must have a prior plausibility
+
+            -   This becomes a *prior* when you have previous estimates
+            -   Can specify and test multiple priors, like with other model
+                components
+
+    -   Binomial distribution example
+
+        -   $W \sim \text{Binomial}(N, p): \text{with } p \sim \text{Uniform}(0, 1)$
+
+            -   Uniform (flat) prior plausibility
+
+## Making the model go
+
+-   Model outputs that posterior distribution that is the probability of the
+    parameters conditional on the data (and the model)
+-   The joint probability of the data $W$ and $L$ with probability $p$ is:
+
+```{=tex}
+\begin{aligned}
+  \text{Pr}(W, L, p) &= \text{Pr}(W, L \mid p)  \times \text{Pr}(p) \\
+  &= \text{Pr}(p \mid W, L)  \times \text{Pr}(W, L) \\
+  
+  &\therefore \\
+  \text{Pr}(p \mid W, L)  \times \text{Pr}(W, L) &= \text{Pr}(W, L \mid p)  \times \text{Pr}(p) \\
+  \text{Pr}(p \mid W, L) &= \frac{\text{Pr}(W, L \mid p)  \times \text{Pr}(p)}{\text{Pr}(W, L)}
+\end{aligned}
+```
+-   Here $\text{Pr}(W, L)$ is the *average* probability of data (over the prior)
+
+    -   AKA the *marginal likelihood*
+
+```{=tex}
+\begin{aligned}
+  \text{Pr}(W, L) &= \text{E}\left(\text{Pr}(W, L \mid p)\right) \\
+  &= \int \text{Pr}(W, L \mid p)  \times \text{Pr}(p) dp
+\end{aligned}
+```
+-   Most importantly
+    $\text{Pr}(W, L \mid p) \propto \text{Pr}(W, L \mid p) \times \text{Pr}(p)$
+
+-   Often it is not possible to *condition* the prior on the data, so much use
+    numerical approximations each with different limitations and assumptions
+
+    -   Grid approximation
+    -   Quadratic approximation
+    -   Markov Chain Monte-Carlo (MCMC)
+
+### Grid approximation
+
+-   Converts continuous parameters to finite grids of values
+
+-   Limitations
+
+    -   Doesn't scale well with increasing number of parameters
+
+Let's have a look at the binomial example used in the book. Here I turn it into
+a function so I can try different priors easily (shown in the book).
+
+\@
+
+```{r}
+p_grid <- seq(0, 1, 0.05)
+
+grid_approx <- function(prior){
+  # Calculation
+  likelihood <- dbinom(6, 9, p_grid)
+  unstd_post <- likelihood * prior
+  post <- unstd_post / sum(unstd_post)
+  
+  # Plotting
+  plot <- plot(p_grid, post, type = "b")
+}
+```
+
+```{r}
+par(mfrow = c(2, 2))
+grid_approx(prior = rep(1, 20))
+grid_approx(prior = ifelse(p_grid < 0.5, 0, 1))
+grid_approx(prior = exp(-5 * abs(p_grid - 0.5)))
+```
+
+### Quadratic approximation
+
+-   Assumption that the peak of the posterior distribution can be approximated
+    by a Guassian distribution
+
+    -   First find peak using some optimization algorithm (often based on
+        calculating Hessians - the 2nd derivate of the parabola - which is
+        proportional to its std)
+    -   The log of the Guassian (posterior) is a parabola (i.e. quadratic
+        function)
+    -   In some instances, is exactly correct
+
+-   Computationally inexpensive relative to grid approximation and MCMC
+
+-   Limitations
+
+    -   Only accurate approximation near the peak of the posterior
+    -   Relies on decent sample size
+
+We'll use the `quap()` function in the `{rethinking}` package to demonstrate a
+binomial example. As in the book, the blue curve is the posterior distribution
+calculated numerically using the beta distribution, and the black line is the
+quadratic approximation. The key insight is that increasing the amount of data
+increases the accuracy of the approximation. This is why frequentist statistics
+heavily relies on sample size, as the quadratic approximation is involved.
+However, just because it improves with *n*, doesn't mean high *n* = good model.
+
+> ***NOTE:*** The Beta distribution is a probability distribution of
+> probabilities with
+> $\text{Beta}(\alpha, \beta) \text{ where: } \mu = \frac{\alpha}{\alpha \beta}$
+> see [this
+> answer](https://stats.stackexchange.com/questions/47771/what-is-the-intuition-behind-beta-distribution)
+
+```{r}
+library(rethinking)
+
+quad_approx <- function(W, L){
+  globe_qa <- quap(
+    alist(
+      W ~ dbinom(W+L, prob = p),
+      p ~ dunif(0, 1)
+    ),
+    data = list(W = W, L = L)
+  )
+
+  mean <- precis(globe_qa)$mean
+  sd <- precis(globe_qa)$sd
+  
+  curve(dbeta(x, W + 1, L + 1), from = 0, to = 1, col = "blue")
+  curve(dnorm(x, mean, sd), add = TRUE)
+  mtext(text = glue::glue("n = {W + L}"))
+}
+```
+
+```{r}
+par(mfrow = c(1, 3))
+quad_approx(W = 6, L = 3)
+quad_approx(W = 18, L = 12)
+quad_approx(W = 36, L = 24)
+```
+
+### Markov Chain Monte-Carlo
+
+-   Useful for multilevel models where posterior can't be expressed in one
+    equation simply
+
+-   Draws samples from posterior distribution and uses relative frequencies of
+    parameter values as plausibility
+
+    -   Don't directly compute or approximate the posterior distribution
+
+## Practice
+
+### E1
+
+2 ($\text{Pr}(\text{rain} | \text{Monday})$) and 4
+($\text{Pr}(\text{rain, Monday}) / \text{Pr}(\text{Monday})$)
+
+### E2
+
+3 (The probability that it's Monday, given it's raining)
+
+### E3
+
+1 ($\text{Pr}(\text{Monday} | \text{rain})$) and 4
+$\left(\frac{\text{Pr}(\text{rain} | \text{Monday}) \text{Pr}(\text{Monday})}{\text{Pr}(\text{rain})}\right)$
+
+> ***NOTE:*** The numerator is the joint probability of it raining and being
+> Monday, so we divide by the probability of it raining to get the probability
+> of it being Monday conditioned on it raining
+
+### E4
+
+This statement implies that we are uncertain each time we toss the globe whether
+we'll land on land or water, but on average, we are assuming that we will land
+on water 70% of the time (as it covers 70% of the surface and we're assuming an
+unbiased globe so each point it equally likely to be picked), and we have no
+knowledge that would allow us to predict exactly where it would land.
+
+### M1
+
+```{r}
+p_grid <- seq(0, 1, 0.01)
+
+grid_approx <- function(prior, W, tot){
+  # Calculation
+  likelihood <- dbinom(W, tot, p_grid)
+  unstd_post <- likelihood * prior
+  post <- unstd_post / sum(unstd_post)
+  
+  # Plotting
+  plot <- plot(p_grid, post, type = "l")
+  mtext(text = glue::glue("{W} W / {tot} total"))
+}
+```
+
+-   In clockwise plot order with a uniform prior
+
+    -   W W W
+    -   W W W L
+    -   L W W L W W W
+
+```{r}
+par(mfrow = c(2, 2))
+grid_approx(prior = rep(1, 100), W = 3, tot = 3)
+grid_approx(prior = rep(1, 100), W = 3, tot = 4)
+grid_approx(prior = rep(1, 100), W = 5, tot = 7)
+```
+
+### M2
+
+-   In clockwise plot order with a step prior
+
+    -   W W W
+    -   W W W L
+    -   L W W L W W W
+
+```{r}
+par(mfrow = c(2, 2))
+grid_approx(prior = ifelse(p_grid < 0.5, 0, 1), W = 3, tot = 3)
+grid_approx(prior = ifelse(p_grid < 0.5, 0, 1), W = 3, tot = 4)
+grid_approx(prior = ifelse(p_grid < 0.5, 0, 1), W = 5, tot = 7)
+```
+
+### M3
+
+```{=tex}
+\begin{aligned}
+  \text{Pr}(\text{Earth} | \text{Land}) &= \frac{\text{Pr}(\text{Land} | \text{Earth}) \text{Pr}(\text{Earth})}{\text{Pr}(\text{Land})} \\
+  &= \frac{0.3 \times 0.5}{(1 + 0.3) / (1 + 1)} \\
+  &\approx 0.23
+\end{aligned}
+```
+### M4
+
+The B/B card has 2 ways of producing a B side up, the B/W card has 1 way of
+producing B side up, and the W/W card has 0 ways. Therefore the probability of
+the other side being B is 2 / (2 + 1)
+
+### M5
+
+There are 2 ways of approaching this problem: 1st, repeat the method above, and
+2nd, update our answer from above.
+
+1)  we end up with 4 ways of picking B from B/B and 1 way from B/W, so p = 0.8
+2)  The prior odds are 2:1, which we multiply by 2 (the number of ways of
+    picking B with our new card) resulting in a posterior odds of 4:1, which
+    converted to a probability is p = 0.8
+
+### M6
+
+There are 2 ways of picking B from the B/B card, and 1 way from B/W, as in M4.
+However, the relative frequencies are 1 and 2, respectively. Multiplying the
+number of ways of selecting B from each card by its frequency we get a posterior
+odds of 2:2, i.e. p = 0.5
+
+### M7
+
+Starting with the first card:
+
+-   There are 2 ways to see B from B/B
+
+    -   There is 1 way to see W from B/W and 2 ways from W/W (the remaining
+        cards)
+    -   Multiplying the ways: $2 \times (1 + 2) = 6$
+
+-   There is 1 way to see B from B/W
+
+    -   There are 2 ways to see W from W/W and 0 from B/B (the remaining cards)
+    -   Multiplying the ways: $1 \times (2 + 0) = 2$
+
+-   In 6 of the 8 ways of getting B then W, the first card is B/B, so p = 0.75
+
+### H1
+
+### H2
+
+### H3
+
+### H4
+
+# Sampling the Imaginary
+
+-   Frequencies are often more intuitive than probabilities
+
+    -   Think of Bayes rule for PPV of a test
+
+-   Can sample the posterior probability distribution to produce frequencies for
+    the parameter values
+
+    -   More intuitive for many scientists than integrating the distribution
+    -   MCMC techniques rely on samples of the posterior distribution
+
+-   Assuming random sampling, the relative frequencies of the parameter values
+    samples from the posterior should be proportionate to their relative
+    probabilities
+
+Let's quickly show it in practice to estimate the posterior probability of
+landing on water in our globe tossing example, created using the grid
+approximation method from earlier
+
+```{r}
+p_grid <- seq(0, 1, length.out = 1000)
+likelihood <- dbinom(6, 9, p_grid)
+unstd_post <- likelihood * rep(1, 1000)
+post <- unstd_post / sum(unstd_post)
+
+samples <- sample(p_grid, prob = post, size = 10000, replace = TRUE)
+par(mfrow = c(2, 1))
+plot(samples)
+dens(samples)
+```
+
+## Sampling to summarize
+
+### An interval
+
+To find the probability contained within an interval i.e., the integral between
+two boundaries, we just sum the frequencies and divide by the total number of
+samples taken!
+
+```{r}
+sum(samples > 0.5 & samples < 0.75) / 1e4
+```
+
+### Intervals of defined mass
+
+To calculate the "Credible Interval" ("comptability interval"), there are two
+methods: - Percentile intervals ("equal tails") - Good when not too asymmetrical
+- Highest posterior density intervals - The narrowest interval containing a
+specified probability mass - More representative of the data - More
+computationally intensive than PIs - Greater simulation variance i.e., sensitive
+to number of samples drawn
+
+The `{rethinking}` package has functions to calculate both
+
+```{r}
+PI(samples, prob = 0.90)
+HPDI(samples, prob = 0.9)
+```
+
+### Point estimate
+
+Can report:
+
+-   Mode (maximum a posteriori - MAP)
+
+    -   The `chainmode` function from `{rethinking}` useful for computing the
+        mode of posterior samples, and should be similar to the max value of the
+        posterior
+
+```{r}
+p_grid[which.max(post)]
+chainmode(samples, adj = 0.01)
+```
+
+-   Median
+-   Mean
+
+Different loss functions will prefer different point estimate measures -
+Absolute loss -\> median - Quadratic loss -\> mean
+
+## Sampling to simulate prediction
+
+### Dummy Data
+
+-   Can sample the prior to understand the model assumptions
+
+For the globe tossing example, we have a binomial distribution and can sample
+directly from it e.g.,
+
+```{r}
+hist(rbinom(n = 1e4, size = 10, prob = 0.7))
+```
+
+### Model checking
+
+#### Software works
+
+-   Retrodiction
+
+    -   Can the model reproduce the data that created it i.e. predict the
+        training data
+    -   Useful to help check the code itself is working as expected, therefore
+        producing the "correct" posterior for the model assumptions
+
+#### Adequate model
+
+-   Want to explain how the model's assumptions fails
+
+-   Want to combine sampling of simulated observations with sampling parameters
+    from posterior distribution
+
+    -   Want to use the entire posterior, not just point estimate, otherwise
+        lose uncertainty and results in overconfidence
+
+        -   Observation uncertainty - model can't be certain about the next
+            value
+
+        -   Parameter uncertainty - uncertainty around *p*, the parameter value
+
+-   To propagate the parameter uncertainty, we average all outcome prediction
+    distributions (calculated by sampling all parameter values) weighted by the
+    posterior probability of the parameter values, to create the posterior
+    predictive distribution
+
+    -   I.e., more likely parameter values contribute more to the final weight
+        average frequency of each possible observation
+
+-   Below is a histogram of this posterior prediction distribution of counts of
+    landing on water, for all parameter values (*p* = probability of landing on
+    water), which we can see is relatively similar to our example above, except
+    it is less confident than when we only use the peak of the posterior
+    probability distribution (*p = 0.7*)
+
+```{r}
+hist(rbinom(n = 1e4, size = 10, prob = samples))
+```
+
+-   Need to think about core assumptions and appropriateness of them i.e., our
+    model assumes that each toss is independent of the others - this may not be
+    the case so our model could be *mis-specified*
+
+    -   Will the model eventually converge on the correct distribution?
+
+## Practice
+
+### E1
+
+```{r}
+p_grid <- seq( from=0 , to=1 , length.out=1000 )
+prior <- rep( 1 , 1000 )
+likelihood <- dbinom( 6 , size=9 , prob=p_grid )
+posterior <- likelihood * prior
+posterior <- posterior / sum(posterior)
+RNGkind(sample.kind = "Rounding") # This is required for >= R v3.6
+set.seed(100)
+samples <- sample( p_grid , prob=posterior , size=1e4 , replace=TRUE )
+```
+
+```{r}
+sum(samples < 0.2) / 1e4
+```
+
+### E2
+
+```{r}
+sum(samples > 0.8) / 1e4
+```
+
+### E3
+
+```{r}
+sum(samples > 0.2 & samples < 0.8) / 1e4
+```
+
+### E4
+
+```{r}
+PI(samples, prob = 0.6)
+```
+
+### E5
+
+```{r}
+PI(samples, prob = 0.6)
+```
+
+### E6
+
+```{r}
+HPDI(samples, prob = 0.66)
+```
+
+### E7
+
+```{r}
+PI(samples, prob = 0.66)
+```
+
+### M1
+
+```{r}
+likelihood <- dbinom(x = 8, size = 15, prob = p_grid)
+unstd_post <- likelihood * prior
+posterior <- unstd_post / sum(unstd_post)
+
+plot(posterior ~ p_grid, type = "l")
+```
+
+### M2
+
+```{r}
+samples <- sample(x = p_grid, prob = posterior, size = 1e4, replace = TRUE)
+HPDI(samples, prob = 0.9)
+```
+
+### M3
+
+```{r}
+w <- rbinom(n = 1e4, size = 15, prob = samples)
+hist(w)
+sum(w == 8) / 1e4
+```
+
+### M4
+
+```{r}
+w <- rbinom(n = 1e4, size = 9, prob = samples)
+hist(w)
+sum(w == 6)/1e4
+```
+
+### M5
+
+```{r}
+p_grid <- seq( from=0 , to=1 , length.out=1000 )
+prior <- ifelse(p_grid < 0.5, 0, 1)
+likelihood <- dbinom(x = 8, size = 15, prob = p_grid)
+unstd_post <- likelihood * prior
+posterior <- unstd_post / sum(unstd_post)
+RNGkind(sample.kind = "Rounding") # This is required for >= R v3.6
+set.seed(100)
+samples <- sample( p_grid , prob=posterior , size=1e4 , replace=TRUE )
+```
+
+#### M1
+
+```{r}
+plot(posterior ~ p_grid, type = "l")
+```
+
+#### M2
+
+```{r}
+samples <- sample(x = p_grid, prob = posterior, size = 1e4, replace = TRUE)
+HPDI(samples, prob = 0.9)
+```
+
+Much narrower CrIs
+
+#### M3
+
+```{r}
+w <- rbinom(n = 1e4, size = 15, prob = samples)
+hist(w)
+sum(w == 8) / 1e4
+```
+
+No longer centered on 8 (the number in the original data that we used to create
+the posterior distribution from)
+
+#### M4
+
+```{r}
+w <- rbinom(n = 1e4, size = 9, prob = samples)
+hist(w)
+sum(w == 6)/1e4
+```
+
+### H1
+
+```{r}
+data(homeworkch3)
+```
+
+```{r}
+boys <- sum(birth1 + birth2)
+girls <- 200 - boys
+```
+
+```{r}
+p_grid <- seq( from=0 , to=1 , length.out=1000 )
+prior <- rep(1, 1000)
+likelihood <- dbinom(x = boys, size = 200, prob = p_grid)
+unstd_post <- likelihood * prior
+posterior <- unstd_post / sum(unstd_post)
+```
+
+```{r}
+plot(posterior ~ p_grid, type = "l")
+```
+
+```{r}
+p_grid[which.max(posterior)]
+```
+
+### H2
+
+```{r}
+RNGkind(sample.kind = "Rounding") # This is required for >= R v3.6
+set.seed(100)
+samples <- sample( p_grid , prob=posterior , size=1e4 , replace=TRUE )
+```
+
+```{r}
+hdpis <- c(0.5, 0.89, 0.97)
+
+purrr::map(hdpis, .f = ~HPDI(samples, prob = .x))
+```
+
+### H3
+
+```{r}
+boys_pred <- rbinom(1e4, size = 200, prob = samples)
+par(mfrow = c(1, 2))
+dens(boys_pred, adj = 0.1)
+abline(v = boys, col = "red")
+plot(posterior ~ p_grid, type = "l")
+```
+
+### H4
+
+```{r}
+first_boy <- rbinom(1e4, size = 100, prob = samples)
+dens(first_boy, adj = 0.1)
+abline(v = sum(birth1), col = "red")
+```
+
+### H5
+
+```{r}
+first_girl <- birth2[birth1 == 0]
+sec_boy_sim <- rbinom(1e4, size = length(first_girl), prob = samples)
+dens(sec_boy_sim, adj = 0.1)
+abline(v = sum(first_girl), col = "red")
+```
+
+# Geocentric Models
