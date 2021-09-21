@@ -210,8 +210,6 @@ your statistical model to your hypotheses.
 Let's have a look at the binomial example used in the book. Here I turn it into
 a function so I can try different priors easily (shown in the book).
 
-\@
-
 ```{r}
 p_grid <- seq(0, 1, 0.05)
 
@@ -268,6 +266,7 @@ However, just because it improves with *n*, doesn't mean high *n* = good model.
 
 ```{r}
 library(rethinking)
+library(tidyverse)
 
 quad_approx <- function(W, L){
   globe_qa <- quap(
@@ -782,3 +781,248 @@ abline(v = sum(first_girl), col = "red")
 ```
 
 # Geocentric Models
+
+## Why normal distributions are normal
+
+### Normal by addition
+
+-   Any process that sums up random values from the same distribution converges
+    to normal
+
+    -   For example, randomly adding up 1 and -1, 16 times (binomial
+        distribution), and repeating the sampling 100,000 times, we end up with
+        the following density plot
+
+```{r}
+plot(density(replicate(1e5, sum(runif(16, -1, 1)))))
+```
+
+-   Can think of it as most fluctuations from the average (0 = starting point)
+    cancel each other out, and more ways to cancel out than to end up further
+    away from 0
+
+### Normal by multiplication
+
+-   Multiplying small number approx. additive
+
+```{r}
+plot(density(replicate(1e5, prod(1 + runif(16, 0, 0.1)))))
+```
+
+### Normal by log-multiplication
+
+-   Large deviations multiplied produce Gaussian distributions on the log scale
+
+```{r}
+plot(density(replicate(1e5, log(prod(1 + runif(16, 0, 0.5))))))
+```
+
+### Using Gaussian distributions
+
+-   Reasons for using Gaussian:
+
+    -   Ontological:
+
+        -   Many processes approximate Gaussian
+
+    -   Epistemological:
+
+        -   Most consistent with our assumptions when all we know is mean and
+            variance
+
+            -   Doesn't introduce new assumptions above "each measure has a
+                finite variance"
+
+        -   Premised on **Information Theory** and **Maximum Entropy**
+
+-   Reasons not to:
+
+    -   Gaussian distributions have thin tails
+
+        -   Many long-running time series (and other processes) have fat tails
+            e.g., long term stock markets
+
+## A language for describing models
+
+1.  Identify **variables**
+
+    1.  Observable = *data*
+
+    2.  Unobservable = *parameters*
+
+2.  Define variables in terms of other variables or a probability distribution
+
+3.  Combination of variables and their probability distributions defines a
+    **joint generative model**
+
+    1.  Used to simulate both hypothetical and real observations
+
+### Re-describing the globe tossing model
+
+```{=tex}
+\begin{aligned}
+  W &\sim \text{Binomial}(N, p) \\
+  p &\sim \text{Uniform}(0, 1)
+\end{aligned}
+```
+This can be read as:
+
+-   The count $W$ is distributed binomially with sample size $N$ and probability
+    $p$
+
+    -   This defines the likelihood function in Bayes' theorem
+
+    ```{=tex}
+    \begin{aligned}
+      \text{Pr}(p \mid w, n) = \frac{\text{Binomial}(w \mid n, p) \text{Uniform}(p \mid 0, 1)}{\int \text{Binomial}(w \mid n, p) \text{Uniform}(p \mid 0, 1) dp}
+    \end{aligned}
+    ```
+
+-   The prior for $p$ is assumed to be uniform between 0 and 1
+
+-   The symbol $\sim$ indicates that it is **stochastic**
+
+    -   A mapping of a variable or parameter onto a distribution
+
+    -   No single instance of the variable on the left is known with certainty
+        (mapping is probabilistic)
+
+## Gaussian model of height
+
+We'll build a linear regression model that produces the relative plausibilities
+of different Gaussian distributions, over all combinations of $\mu$ and $\sigma$
+(approximately) - these are the posterior probabilities. The model will rank the
+individual Gaussian distributions by the posterior plausibilities, and our
+overall posterior distribution is a *distribution of distributions*!
+
+Let's look at example of human heights.
+
+```{r}
+data("Howell1")
+d <- Howell1
+precis(d)
+```
+
+```{r}
+d2 <- dplyr::filter(d, age >= 18)
+dens(d2$height)
+```
+
+Let's choose to use a Gaussian distribution (for the reasons listed above):
+
+$$
+\begin{align}
+h_i &\stackrel{iid}{\sim} \text{Normal}(\mu, \sigma) \tag*{[likelihood]}\\
+\mu &\sim \text{Normal}(178, 20) \tag*{[$\mu$ prior]}\\
+\sigma &\sim \text{Uniform}(0, 50) \tag*{[$\sigma$ prior]}\\
+\end{align}
+$$
+
+In this case, the *model* we are using assumes that the observations are
+independent and identically distributed, **not** that the actual variables are.
+
+-   Prior predictive simulation
+
+    -   Simulate the **joint prior distribution** of individual heights
+
+        -   All posteriors are *potential* *priors* for subsequent analysis!
+
+        -   Useful to quickly try and understand how sensible a prior may be
+            i.e. that mean height has a sd of 20cm vs 100cm
+
+        -   In evaluating the prior, it is important that the prior is not based
+            on the data, but what is known **prior**!
+
+```{r}
+prior_sim_dens <- function(mu_mean, mu_sd, sd_mean, sd_sd){
+  sample_mu <- rnorm(1e4, mean = mu_mean, sd = mu_sd)
+  sample_sigma <- rnorm(1e4, mean = sd_mean, sd = sd_sd)
+  prior_h <- rnorm(1e4, sample_mu, sample_sigma)
+  
+  dens(prior_h)
+  abline(v = mu_mean, col = "red")
+}
+
+par(mfrow = c(1, 2))
+prior_sim_dens(mu_mean = 178, mu_sd = 20, sd_mean = 0, sd_sd = 50)
+prior_sim_dens(mu_mean = 178, mu_sd = 100, sd_mean = 0, sd_sd = 50)
+```
+
+The Bayes' theorem equation now involves multiplication as we have multiple
+parameter values that make up the joint posterior distribution
+
+$$
+\text{Pr}(\mu, \sigma \mid h) = \frac{\prod_i \text{Normal}(h_i \mid \mu, \sigma) \text{Normal}(\mu \mid 178, 20)\text{Uniform}(\sigma \mid 0, 50)}{\int \int \prod_i \text{Normal}(h_i \mid \mu, \sigma) \text{Normal}(\mu \mid 178, 20)\text{Uniform}(\sigma \mid 0, 50) d\mu d\sigma}
+$$
+
+### Grid approximation of the posterior distribution
+
+-   Usually impractical to use to estimate the posterior, but shown here as it's
+    familiar to get us started
+
+```{r}
+mu_list <- seq(from = 150, to = 160, length.out = 100)
+sigma_list <- seq(from = 7, to = 9, length.out = 100)
+post <- expand.grid(mu = mu_list, sigma = sigma_list)
+
+post$LL <- purrr::map_dbl(
+   1:nrow(post), ~sum(dnorm(d2$height, post$mu[.x], post$sigma[.x], log = TRUE))
+)
+
+# Log scale so multiplication turns to addition
+post$prod <- post$LL + 
+  dnorm(post$mu, 178, 20, TRUE) + 
+  dunif(post$sigma, 0, 50, TRUE)
+
+# Log scale so division turns to subtraction
+post$prob <- exp(post$prod - max(post$prod))
+```
+
+```{r}
+image_xyz(post$mu, post$sigma, post$prob)
+```
+
+### Sampling from the posterior
+
+To sample with more than one parameter value, we have to sample row numbers in
+proportion to the values in the probability column
+
+```{r}
+sample_rows <- sample(
+  1:nrow(post), size = 1e4, replace = TRUE, prob = post$prob
+  )
+
+sample_mu <- post$mu[sample_rows]
+sample_sigma <- post$sigma[sample_rows]
+
+sample_mu %>% 
+  cbind(sample_sigma) %>% 
+  as_tibble() %>% 
+  ggplot(aes(x = sample_mu, y = sample_sigma)) +
+  geom_point(alpha = 0.3, color = "blue")
+```
+
+To get the **marginal posterior densities** (i.e., averaging over the other
+parameters):
+
+-   Posterior densities will approach normal with large sample sizes
+
+-   The standard deviation is *left-skewed* i.e., has a long right tail, which
+    is common for sd parameters
+
+    -   Variance must be positive so there is more uncertainty about larger
+        variance than smaller variance
+
+```{r}
+par(mfrow = c(1, 2))
+dens(sample_mu, norm.comp = TRUE, col = "blue")
+dens(sample_sigma, norm.comp = TRUE, col = "blue")
+```
+
+### Finding the posterior distribution with `quap()`
+
+```{r}
+f_list <- list(
+  
+)
+```
