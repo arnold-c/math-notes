@@ -3,9 +3,200 @@ title: "Survival Analysis Notes"
 author: "Callum Arnold"
 date: "`r Sys.Date()`"
 output: 
-  html_document:
+  bookdown::html_document2:
     toc: TRUE
     toc_float: TRUE
-    number_sections: TRUE
+    number_sections: FALSE
     code_folding: hide
+bibliography: survival-analysis.bib
+link-citations: TRUE
 ---
+
+# British Journal of Cancer Tutorial Series {#bjc-tutorials}
+
+## Part 1 [@clarkSurvivalAnalysisPart2003] {#bjc-part1}
+
+-   Often true time to event is not known (event hasn't occurred at end of
+    follow up)
+
+-   Survival data rarely normally distributed
+
+    -   Typically many early events and few late ones
+
+### Censoring
+
+-   Survival times unknown for subset of study group
+
+-   Censoring can happen in a number of ways
+
+    -   Patient has not yet experienced outcome by end of study period
+
+        -   **Right censoring**
+
+    -   Patient is lost to follow up during study period
+
+    -   Patient experiences different event making follow up impossible
+
+-   Underestimates the true time to event
+
+-   **Left censored**
+
+    -   If we observe presence of a state/condition but don't know when it
+        occurs
+
+    -   We know the start point in this situation e.g. cancer reoccurence
+        following surgery, as we know their surgical date
+
+-   **Interval censored**
+
+    -   Observe patients at intervals, and some may be lost to follow up between
+        intervals, or time between intervals is large such that a person
+        develops disease within the interval and precise onset can't be known
+
+-   Most data is right censored, but methods exist for all types of censoring
+
+### Illustrative Studies
+
+-   Generally good to choose end-point that can't be mis-specified i.e.
+    all-cause mortality vs mortality from specific condition
+
+### Survival and Hazard
+
+-   **Survival probability** (*survival function*) $S(t)$
+
+    -   Probability an individual survives from the time origin to specified
+        future time *t*
+
+    -   Reflects the cumulative non-occurence
+
+-   **Hazard** $h(t)$ or $\lambda(t)$
+
+    -   Probability that an observed individual has an event at time *t*, i.e.,
+        the instantaneous event rate for an individual who has survived to time
+        *t*
+
+    -   Hazard relates to the incident event rate
+
+### Kaplan-Meier Survival Estimate
+
+-   Non-parametric estimate from observed survival times
+
+    -   Both censored and non-censored
+
+-   *Assuming independent events*, multiply probabilities of surviving from one
+    interval to the next to get the cumulative survival probability
+
+$$
+\begin{equation}
+\begin{split}
+S(t_j) &= S(t_{j-1}) \left(1 - \frac{d_j}{n_j}\right) \\
+\text{where}: n_j &= \text{# people alive just before } t_j \\
+d_j &= \text{# of events at } t_j
+\end{split}
+(\#eq:survivalfun)
+\end{equation}
+$$
+
+-   For censoring, can think of as inputting $d_j = 0$ and reducing $n_j$ by 1
+    (assuming one individual was censored at time $t_j$), resulting in
+    $S(t_j) = S(t_{j-1})$
+
+-   Often patients lost to follow-up/alive at end of study period, so CIs are
+    wider than earlier making for difficulty in interpretation
+
+    -   May want to curtail x-axis for this reason
+
+-   For low incidence events, plotting cumulative incidence instead of
+    cumulative survival can be useful
+
+### Hazard and Cumulative Hazard
+
+-   Relationship between survival and hazard given by equation
+
+$$
+h(t) = - \frac{d}{dt}[\log S(t)] (\#eq:hazard)
+$$
+
+-   No simple way to estimate $h(t)$
+
+    -   Instead need to estimate the **cumulative hazard** $H(t)$
+
+$$
+\begin{equation}
+\begin{split}
+H(t) &= \int h(t) \, dt \\
+&= - \log [S(t)]
+\end{split}
+(\#eq:cumhazard)
+\end{equation}
+$$
+
+-   Cumulative hazard can be though of as the number of events to be expected
+    for each individual by time $t$ if the event was a repeatable process
+
+-   Cumulative hazard used to estimate $h(t)$, and as a diagnostic tool of model
+    validity
+
+-   **Nelson-Aalen estimator** is a simple non-parametric estimate of $H(t)$
+
+-   Can also estimate hazard by assuming survival times follow a specific
+    distribution (parametric estimation), for example:
+
+    -   Constant hazard (e.g. healthy individuals) = exponential distribution
+
+    -   Strictly increasing (e.g. leukaemia patients)/decreasing (e.g. patients
+        recovery from surgery) hazard = Weibull
+
+    -   Increasing then decreasing log-Normal (e.g. TB patients)
+
+### Non-parametric Tests Comparing Survival
+
+-   Logrank test most widely used to compare curves
+
+    -   Calculates at each event time, for each group, expected number of events
+        since previous if no difference between groups, summed over all event
+        times, giving total expected number of events for each group
+
+    -   $\chi^2$ test for observed vs expected in each group with $g-1$ degrees
+        of freedom where $g$ is the number of groups (survival curves)
+
+    -   When only 2 groups, is $H_0$ that the **hazard ratio** = 1
+
+        -   Usually best to estimate with regression e.g., Cox regression, but
+            can calculate with observations/estimated
+
+    -   More robust than comparing medians, but lack of effect size is a
+        limitation
+
+-   If natural order, can do a test for trend
+
+    -   Compare to $\chi^2$ distribution with 1 df
+
+### Some Key Requirements for the Analysis of Survival Data
+
+-   Standard methods require **noninformative censoring**
+
+    -   Censored individuals shouldn't differ in their chance of experiencing an
+        event e.g. informative when patients withdraw from trial due worsening
+        clinical condition
+
+-   Must have sufficient follow up time to capture enough events
+
+    -   Sufficient power for test
+
+-   Good estimate of follow up time is the **reverse KM estimator**
+
+    -   Censoring is the event of interest
+
+-   Unequal of follow up between groups can bias analysis
+
+-   Need to take into account **cohort effects**
+
+    -   Assumption of homogeneity of treatment/other factors during study period
+        may not hold e.g. long study period of cancer patients and detection
+        methods improve so cases detected earlier in disease progression (not
+        accounted for by groups)
+
+-   Consistency in methods between multiple participating centres
+
+# References {#refs}
