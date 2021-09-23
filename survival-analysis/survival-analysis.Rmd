@@ -127,7 +127,7 @@ $$
 H(t) &= \int h(t) \, dt \\
 &= - \log [S(t)]
 \end{split}
-(\#eq:cumhazard)
+(\#eq:cum-hazard)
 \end{equation}
 $$
 
@@ -198,5 +198,211 @@ $$
         accounted for by groups)
 
 -   Consistency in methods between multiple participating centres
+
+## Part 2 [@bradburnSurvivalAnalysisPart2003]
+
+### The Need for Multivariate Statistical Modelling
+
+-   Logrank test only provides p-value, not an estimate of effect size
+
+    -   We need a statistical model to do this, and account for covariates
+
+-   Two main approaches
+
+    -   Proportional hazards e.g. semi-parametric Cox model and fully parametric
+        approaches
+
+    -   Accelerated failure time models
+
+### The Cox ("Semi-parametric") Proportional Hazards Model
+
+-   Regression model that describes the relation between event incidence
+    (expressed by hazard function) and covariates
+
+$$
+h(t) = h_0(t) \times \exp\{b_1 x_1 + b_2 x_2 + ... + b_p x_p \} (\#eq:cox-model)
+$$
+
+-   Baseline hazard ($h_0(t)$) estimated non-parametrically, so survival times
+    are not assumed to follow a distribution
+
+-   Effectively a linear regression of the logarithm of the hazard on the
+    covariates $x_i$ with coefficients $b_i$
+
+    -   Covariates act manipulatively on hazard
+
+-   Key assumption
+
+    -   The hazard in any group is a **constant multiple** of the hazard in the
+        other groups i.e. **proportional hazards,** therefore the hazard curves
+        cannot cross
+
+        -   Often appropriate assumption for survival data, but must be
+            confirmed
+
+-   $\exp(b_i)$ are the **hazard ratios**
+
+    -   HR > 1 means increased hazard of the event i.e. decreased survival time
+
+### Parametric PH Models
+
+-   Same interpretation of regression results as Cox model, but assumes survival
+    times and hazards follow a distribution
+
+-   Assumes proportional hazards
+
+-   Most common distributional assumptions
+
+    -   Exponential
+
+    -   Weibull
+
+    -   Gompertz
+
+### Comparison of the Two PH Approaches
+
+-   Sometimes difficult to identify appropriate distribution of survival times
+
+-   Parametric model more informative than Cox model when have correct
+    distribution
+
+    -   Straightforward to derive hazard function and obtain predicted survival
+        times
+
+    -   Slightly more *efficient* i.e. smaller standard errors
+
+-   For either to be valid:
+
+    -   Covariate effect needs to be at least approximately constant throughout
+        study period
+
+    -   Proportionality assumption holds
+
+### Interpreting the PH Model: Beyond the Hazard Ratio
+
+-   Useful to estimate predicted survival proportion at a given time point for a
+    group
+
+$$
+S(t) = S_0(t) ^{\exp\{b_1 x_1 + b_2 x_2 + ... + b_p x_p \}} (\#eq:surv-prop)
+$$
+
+### Accelerated Failure Time Models
+
+$$
+\begin{equation}
+\begin{split}
+S(t) &= S_0 (\varphi t) \\
+&= S_0 \left(\exp\{b_1 x_1 + b_2 x_2 + ... + b_p x_p \} t \right)
+\end{split}
+(\#eq:aft-model)
+\end{equation}
+$$
+
+-   $S_0(t)$ is the baseline survivor function and $\varphi$ is the
+    **accelerator** **factor**
+-   The effect of the covariate is to stretch or shrink the survival curve along
+    the time axis by a constant relative amount, $\varphi$
+-   The AFT model is commonly rewritten as being log-linear with respect to time
+
+$$
+\begin{equation}
+\begin{split}
+\log(T) &= b_1 x_1 + b_2 x_2 + ... + b_p x_p + \varepsilon \\
+\text{where}: \varepsilon &= \text{residual variability in survival times}
+\end{split}
+(\#eq:loglin-aft-model)
+\end{equation}
+$$
+
+-   Survival times multiplied by a constant effect
+
+-   $\exp(b_i)$ are **time ratios**
+
+    -   \>1 for a covariate = increases the time to event
+
+-   When survival times follow Weibull, AFT and PH models are the same
+
+    -   Interpretation of effect sizes differs - time vs hazard ratios
+
+-   Normal distributional assumptions in AFT models:
+
+    -   Log-Normal
+
+    -   Log-Logistic
+
+    -   Generalised Gamma
+
+    -   Weibull
+
+-   Can implement semi-parametric AFT
+
+    -   Baseline survivor function is estimated non-parametrically
+
+-   Assumptions:
+
+    -   Appropriate distribution
+
+    -   Covariate effects assumed to be constant and multiplicative on the
+        timescale i.e. impacts on survival by a constant factor
+
+### Which Model Should We Use: PH or AFT?
+
+-   Initially, which fits the data better?
+
+-   Assuming both fit similarly:
+
+    -   Norm within field i.e. ease of comparability if HRs common vs TRs
+
+    -   Parametric approach of AFT offers more in the way of prediction
+
+    -   TRs arguably more interpretable than HRs
+
+### Other Approaches
+
+-   More straighforward to incorporate covariates using stratified survival
+    analysis
+
+    -   Use logrank or similar method to compare within strata, and combined for
+        overall comparison adjusted for the strata e.g. stage of disease
+
+    -   No distributional assumptions made and simple interpretation
+
+    -   Only applicable with categorical variables and for few covariates
+
+    -   Does not quantify effect, and only p-value for variable of primary
+        interest
+
+    -   Good for exploratory analysis
+
+#### Aalen's additive hazard model
+
+-   Assumes covariates impact additively on baseline hazard, but effects are not
+    constrained to be constant
+
+    -   Impact can vary over time
+
+$$
+h(t) = h_0(t) + b_1(t) x_1 + b_2(t) x_2 + ... + b_p(t) x_p (\#eq:aalen-additive)
+$$
+
+-   Not simple to estimate baseline hazard non-parametrically, so need to use
+    cumulative baseline, as well as estimating cumulative additional hazards as
+    the regression coefficients
+
+$$
+B_i(t) = \int_0^t b_i(u) du (\#eq:cum-add-hazard)
+$$
+
+-   Plotting $B_i(t)$ is sometimes called Aalen plots, and the slope can be used
+    to infer the relative increase in hazard at time $t$, but not the absolute
+    increase ($b_i(t)$)
+
+    -   Can be used to informally assess PH assumption
+
+-   Difficult to interpret and $B_i(t)$ coefficients can change rapidly over
+    time so no single effect size estimate
+
+## Part 3 [@bradburnSurvivalAnalysisPart2003a]
 
 # References {#refs}
