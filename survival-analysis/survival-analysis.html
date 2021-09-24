@@ -285,7 +285,7 @@ div.tocify {
 <div id="bjc-tutorials" class="section level1">
 <h1>British Journal of Cancer Tutorial Series</h1>
 <div id="bjc-part1" class="section level2">
-<h2>Part 1 <span class="citation">(<a href="#ref-clarkSurvivalAnalysisPart2003" role="doc-biblioref">Clark et al. 2003</a>)</span></h2>
+<h2>Part 1 <span class="citation">(<a href="#ref-clarkSurvivalAnalysisPart2003" role="doc-biblioref">Clark et al. 2003a</a>)</span></h2>
 <ul>
 <li><p>Often true time to event is not known (event hasn’t occurred at end of
 follow up)</p></li>
@@ -829,7 +829,222 @@ violated</p>
 <div id="assessing-whether-an-aft-model-is-adequate" class="section level3">
 <h3>Assessing Whether An AFT Model is Adequate</h3>
 <ul>
-<li></li>
+<li><p><strong>Quantile-quantile (Q-Q) plots</strong> of the times of the survival percentiles
+should be a straight line of slope <span class="math inline">\(\varphi\)</span> passing through <span class="math inline">\((0, 0)\)</span>.</p>
+<ul>
+<li>Good first examination, but can’t account for non-linearity due to
+inappropriate/omitted covariates</li>
+</ul></li>
+<li><p>Time-dependent covariate models can be used</p></li>
+</ul>
+</div>
+</div>
+<div id="part-4-clarksurvivalanalysispart2003a" class="section level2">
+<h2>Part 4 <span class="citation">(<a href="#ref-clarkSurvivalAnalysisPart2003a" role="doc-biblioref">Clark et al. 2003b</a>)</span></h2>
+<div id="categorising-continuous-variables" class="section level3">
+<h3>Categorising Continuous Variables?</h3>
+<ul>
+<li><p>Occasionally good reasons to categorise variables, so do the following:</p>
+<ul>
+<li><p>Use predetermined cut-points, preferably with clinical meaning</p>
+<ul>
+<li>Don’t choose cut-points to minimise p-values</li>
+</ul></li>
+<li><p>Use 2+ categories to reduce loss of information and allow linearity
+assessment</p></li>
+<li><p>Ensure groups sizes are adequate (individuals + events)</p></li>
+</ul></li>
+<li><p>Think if smoothing splines would be more appropriate if nonlinear
+associations</p></li>
+</ul>
+</div>
+<div id="multiple-measurements-for-the-same-covariate" class="section level3">
+<h3>Multiple Measurements for the Same Covariate</h3>
+<ul>
+<li><p>Requires <strong>time-dependent (updated) covariate</strong> methods</p>
+<ul>
+<li>The value of the covariate changes during the study period e.g.
+non-smoker starts smoking</li>
+</ul></li>
+<li><p>Updated hazard formula in the PH model:</p></li>
+</ul>
+<p><span class="math display" id="eq:time-dep-hazard">\[
+h(t) = h_0(t) \exp[b_1 x_1(t)] \tag{11}
+\]</span></p>
+<ul>
+<li><p>Harder to use time-dependent AFT models</p></li>
+<li><p>Can also get <strong>time-dependent coefficients</strong> i.e.
+<span class="math inline">\(h(t) = h_0(t) \exp[b_1(t) x_1]\)</span></p>
+<ul>
+<li>The effect of the covariate changes during the study period</li>
+</ul></li>
+<li><p>Requires a large amount of data</p></li>
+<li><p>Have to be confident that the collection process itself isn’t dependent on
+clinical progress</p></li>
+</ul>
+</div>
+<div id="informative-censoring" class="section level3">
+<h3>Informative Censoring</h3>
+<ul>
+<li><p><em>Ad hoc</em> method of sensitivity analysis</p>
+<ul>
+<li><p>Assign varying survival times to censored individuals and examine
+differences</p></li>
+<li><p>Works best when few censored, but also less bias then</p></li>
+</ul></li>
+<li><p>Assume all censored individuals follow same treatment e.g. patients lost to
+follow-up in smoking cessation trial all considered to be continuing smokers</p></li>
+<li><p>Competing risks or mixture models can be used when individual experiences
+different defined event which are explicitly modelled</p></li>
+</ul>
+</div>
+<div id="missing-covariate-data" class="section level3">
+<h3>Missing Covariate Data</h3>
+<ul>
+<li>Multiple imputation methods preferable to alternatives</li>
+<li>Sensitivity analysis should be conducted to compare imputation results
+against complete case etc</li>
+</ul>
+</div>
+<div id="variable-selection" class="section level3">
+<h3>Variable Selection</h3>
+<ul>
+<li>Start with known prognostic factors and those specifically required for
+study aims</li>
+<li>Backwards selection is best of the selection strategies as full model is the
+only one with accurate standard errors and p-values</li>
+<li>Lasso and ridge regression possibilities</li>
+<li>Use bootstrap methods to compare stability and predictive ability of the
+full model vs reduced model</li>
+</ul>
+</div>
+<div id="measuring-the-predictive-ability-and-model-validation" class="section level3">
+<h3>Measuring the Predictive Ability, and Model Validation</h3>
+<ul>
+<li>Useful models require both internal and external validity</li>
+<li><em>c-index</em> used to determine discrimination</li>
+<li>Calibration can be quantified using an estimate of slope shrinkage</li>
+<li>Can use training and test data for validation</li>
+<li>Bootstrapping or LOOCV likely more useful for validation</li>
+</ul>
+</div>
+<div id="analysis-with-unmeasured-factors" class="section level3">
+<h3>Analysis with Unmeasured Factors</h3>
+<ul>
+<li><p>Inappropriate when vital information is missing e.g. cancer stage</p></li>
+<li><p>Possible that some individuals have shared exposure that is unmeasured e.g.
+environmental exposures for a family</p>
+<ul>
+<li><p>Arises in cluster randomised trials and multicentre trials</p></li>
+<li><p>Considered to be <strong>multilevel</strong> so need to examine variation within and
+between groups</p>
+<ul>
+<li><p>Use <strong>random effects (frailty)</strong> model to allow covariate effects to
+vary across groups</p>
+<ul>
+<li><p>Can also be considered to apply to the individual relating to
+unmeasured variables, for example</p></li>
+<li><p>Requires precise knowledge of the frailty distribution, which is
+often not available</p></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+<div id="artificial-neural-networks-and-regression-trees" class="section level3">
+<h3>Artificial Neural Networks and Regression Trees</h3>
+<ul>
+<li><p>ANNs work by having a/multiple latent (hidden) layer(s) between the input
+(covariates) and output (survival probability)</p>
+<ul>
+<li><p>The relative importance of the latent variables determines survival</p></li>
+<li><p>Can more easily incorporate complex covariate-survival relationships
+than Cox regression</p></li>
+<li><p>High chance of overfitting</p></li>
+<li><p>Lack of interpretation</p></li>
+<li><p>Difficulty handling censored survival times</p></li>
+<li><p>Usually not better than standard techniques, but often misused</p></li>
+</ul></li>
+<li><p>CARTs are easily interpretable and rely on fewer distributional assumptions</p>
+<ul>
+<li><p>Particularly useful when interactions</p></li>
+<li><p>Have to decide threshold to categorise continuous variables and correct
+for multiple testing and overfitting</p>
+<ul>
+<li>Same issues as forward selection</li>
+</ul></li>
+<li><p>Doesn’t offer effect size estimates as focuses on discrimination</p></li>
+</ul></li>
+</ul>
+</div>
+<div id="different-types-of-events-or-repeated-events" class="section level3">
+<h3>Different Types of Events or Repeated Events</h3>
+<ul>
+<li><p>Competing risks analysis</p>
+<ul>
+<li><p>Seperate time to events can be misleading and KM overestimates
+proportion of subjects experiencing each event</p>
+<ul>
+<li><p>Cumulative incidence method useful to overcome this</p>
+<ul>
+<li>Overall event probability at time <span class="math inline">\(t\)</span> is the sum of the
+event-specific probabilities</li>
+</ul></li>
+</ul></li>
+<li><p>Generally implemented by entering each patient once per event type</p>
+<ul>
+<li>Experiencing a different event = censoring time</li>
+</ul></li>
+</ul></li>
+<li><p>Multiple events of the same type</p>
+<ul>
+<li><p>Common to use the first event only</p>
+<ul>
+<li>Ignores information</li>
+</ul></li>
+<li><p><strong>Conditional model</strong></p>
+<ul>
+<li><p>Time broken up into segments by event i.e. only at risk of event 2
+after you’ve experienced event 1</p></li>
+<li><p>Can model starting at:</p>
+<ul>
+<li><p>Beginning of the study</p></li>
+<li><p>The time of the first event</p></li>
+</ul></li>
+</ul></li>
+<li><p><strong>Marginal model</strong></p>
+<ul>
+<li><p>Each event is a separate process i.e. time starts at the beginning
+of the follow-up for each individual</p></li>
+<li><p>Considered to be at-risk for all events, regardless of number of
+previous events e.g. patient can be at risk of event 4, even if they
+were lost to follow up at the 2nd</p></li>
+</ul></li>
+<li><p><strong>Independent increment model</strong></p>
+<ul>
+<li><p>Similar to conditional, but doesn’t account for the number of
+previous events experienced by a patient</p>
+<ul>
+<li>Conditional and marginal preferable for this reason</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li><p>All entered as one patient record per event number</p></li>
+</ul>
+<!-- -->
+<ul>
+<li><p>All applied within usual Cox or AFT model framework</p>
+<ul>
+<li><p>2 exceptions from usual fitting</p>
+<ul>
+<li><p>Cluster effect used to adjust s.e. due to patients repeated</p></li>
+<li><p>Stratified analysis (except increment model) by event type
+(competing risks) or number (recurring events)</p>
+<ul>
+<li>Interactions between covariates and strata can be assessed</li>
+</ul></li>
+</ul></li>
+</ul></li>
 </ul>
 </div>
 </div>
@@ -844,7 +1059,10 @@ Bradburn, M. J., T. G. Clark, S. B. Love, and D. G. Altman. 2003a. <span>“Surv
 ———. 2003b. <span>“Survival <span>Analysis Part III</span>: <span>Multivariate</span> Data Analysis  Choosing a Model and Assessing Its Adequacy and Fit.”</span> <em>British Journal of Cancer</em> 89 (4): 605–11. <a href="https://doi.org/10.1038/sj.bjc.6601120">https://doi.org/10.1038/sj.bjc.6601120</a>.
 </div>
 <div id="ref-clarkSurvivalAnalysisPart2003" class="csl-entry">
-Clark, T. G., M. J. Bradburn, S. B. Love, and D. G. Altman. 2003. <span>“Survival Analysis Part I: Basic Concepts and First Analyses.”</span> <em>British Journal of Cancer</em> 89 (2): 232–38. <a href="https://doi.org/10.1038/sj.bjc.6601118">https://doi.org/10.1038/sj.bjc.6601118</a>.
+Clark, T. G., M. J. Bradburn, S. B. Love, and D. G. Altman. 2003a. <span>“Survival Analysis Part I: Basic Concepts and First Analyses.”</span> <em>British Journal of Cancer</em> 89 (2): 232–38. <a href="https://doi.org/10.1038/sj.bjc.6601118">https://doi.org/10.1038/sj.bjc.6601118</a>.
+</div>
+<div id="ref-clarkSurvivalAnalysisPart2003a" class="csl-entry">
+———. 2003b. <span>“Survival <span>Analysis Part IV</span>: <span>Further</span> Concepts and Methods in Survival Analysis.”</span> <em>British Journal of Cancer</em> 89 (5): 781–86. <a href="https://doi.org/10.1038/sj.bjc.6601117">https://doi.org/10.1038/sj.bjc.6601117</a>.
 </div>
 </div>
 </div>

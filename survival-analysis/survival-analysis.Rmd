@@ -553,4 +553,201 @@ $$
 
 -   Time-dependent covariate models can be used
 
+## Part 4 [@clarkSurvivalAnalysisPart2003a]
+
+### Categorising Continuous Variables?
+
+-   Occasionally good reasons to categorise variables, so do the following:
+
+    -   Use predetermined cut-points, preferably with clinical meaning
+
+        -   Don't choose cut-points to minimise p-values
+
+    -   Use 2+ categories to reduce loss of information and allow linearity
+        assessment
+
+    -   Ensure groups sizes are adequate (individuals + events)
+
+-   Think if smoothing splines would be more appropriate if nonlinear
+    associations
+
+### Multiple Measurements for the Same Covariate
+
+-   Requires **time-dependent (updated) covariate** methods
+
+    -   The value of the covariate changes during the study period e.g.
+        non-smoker starts smoking
+
+-   Updated hazard formula in the PH model:
+
+$$
+h(t) = h_0(t) \exp[b_1 x_1(t)] (\#eq:time-dep-hazard)
+$$
+
+-   Harder to use time-dependent AFT models
+
+-   Can also get **time-dependent coefficients** i.e.
+    $h(t) = h_0(t) \exp[b_1(t) x_1]$
+
+    -   The effect of the covariate changes during the study period
+
+-   Requires a large amount of data
+
+-   Have to be confident that the collection process itself isn't dependent on
+    clinical progress
+
+### Informative Censoring
+
+-   *Ad hoc* method of sensitivity analysis
+
+    -   Assign varying survival times to censored individuals and examine
+        differences
+
+    -   Works best when few censored, but also less bias then
+
+-   Assume all censored individuals follow same treatment e.g. patients lost to
+    follow-up in smoking cessation trial all considered to be continuing smokers
+
+-   Competing risks or mixture models can be used when individual experiences
+    different defined event which are explicitly modelled
+
+### Missing Covariate Data
+
+-   Multiple imputation methods preferable to alternatives
+-   Sensitivity analysis should be conducted to compare imputation results
+    against complete case etc
+
+### Variable Selection
+
+-   Start with known prognostic factors and those specifically required for
+    study aims
+-   Backwards selection is best of the selection strategies as full model is the
+    only one with accurate standard errors and p-values
+-   Lasso and ridge regression possibilities
+-   Use bootstrap methods to compare stability and predictive ability of the
+    full model vs reduced model
+
+### Measuring the Predictive Ability, and Model Validation
+
+-   Useful models require both internal and external validity
+-   *c-index* used to determine discrimination
+-   Calibration can be quantified using an estimate of slope shrinkage
+-   Can use training and test data for validation
+-   Bootstrapping or LOOCV likely more useful for validation
+
+### Analysis with Unmeasured Factors
+
+-   Inappropriate when vital information is missing e.g. cancer stage
+
+-   Possible that some individuals have shared exposure that is unmeasured e.g.
+    environmental exposures for a family
+
+    -   Arises in cluster randomised trials and multicentre trials
+
+    -   Considered to be **multilevel** so need to examine variation within and
+        between groups
+
+        -   Use **random effects (frailty)** model to allow covariate effects to
+            vary across groups
+
+            -   Can also be considered to apply to the individual relating to
+                unmeasured variables, for example
+
+            -   Requires precise knowledge of the frailty distribution, which is
+                often not available
+
+### Artificial Neural Networks and Regression Trees
+
+-   ANNs work by having a/multiple latent (hidden) layer(s) between the input
+    (covariates) and output (survival probability)
+
+    -   The relative importance of the latent variables determines survival
+
+    -   Can more easily incorporate complex covariate-survival relationships
+        than Cox regression
+
+    -   High chance of overfitting
+
+    -   Lack of interpretation
+
+    -   Difficulty handling censored survival times
+
+    -   Usually not better than standard techniques, but often misused
+
+-   CARTs are easily interpretable and rely on fewer distributional assumptions
+
+    -   Particularly useful when interactions
+
+    -   Have to decide threshold to categorise continuous variables and correct
+        for multiple testing and overfitting
+
+        -   Same issues as forward selection
+
+    -   Doesn't offer effect size estimates as focuses on discrimination
+
+### Different Types of Events or Repeated Events
+
+-   Competing risks analysis
+
+    -   Seperate time to events can be misleading and KM overestimates
+        proportion of subjects experiencing each event
+
+        -   Cumulative incidence method useful to overcome this
+
+            -   Overall event probability at time $t$ is the sum of the
+                event-specific probabilities
+
+    -   Generally implemented by entering each patient once per event type
+
+        -   Experiencing a different event = censoring time
+
+-   Multiple events of the same type
+
+    -   Common to use the first event only
+
+        -   Ignores information
+
+    -   **Conditional model**
+
+        -   Time broken up into segments by event i.e. only at risk of event 2
+            after you've experienced event 1
+
+        -   Can model starting at:
+
+            -   Beginning of the study
+
+            -   The time of the first event
+
+    -   **Marginal model**
+
+        -   Each event is a separate process i.e. time starts at the beginning
+            of the follow-up for each individual
+
+        -   Considered to be at-risk for all events, regardless of number of
+            previous events e.g. patient can be at risk of event 4, even if they
+            were lost to follow up at the 2nd
+
+    -   **Independent increment model**
+
+        -   Similar to conditional, but doesn't account for the number of
+            previous events experienced by a patient
+
+            -   Conditional and marginal preferable for this reason
+
+-   All entered as one patient record per event number
+
+```{=html}
+<!-- -->
+```
+-   All applied within usual Cox or AFT model framework
+
+    -   2 exceptions from usual fitting
+
+        -   Cluster effect used to adjust s.e. due to patients repeated
+
+        -   Stratified analysis (except increment model) by event type
+            (competing risks) or number (recurring events)
+
+            -   Interactions between covariates and strata can be assessed
+
 # References {#refs}
