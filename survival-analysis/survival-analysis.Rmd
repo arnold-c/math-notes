@@ -405,4 +405,152 @@ $$
 
 ## Part 3 [@bradburnSurvivalAnalysisPart2003a]
 
+### Choice of Covariates
+
+-   Need sufficient *number of events (not participants)* for power, especially
+    with variable selection
+
+    -   Suggested at least 10 events for each covariate, otherwise coefficients
+        will be biased
+
+        -   Including for interactions!
+
+-   Possible reasons to use a multivariable model:
+
+    -   Single factor under investigation, but other (nuisance) factors exist
+        that need to be accounted for
+
+    -   Multiple factors of known relevance under investigation
+
+    -   Multiple factors are potentially associated with survival, possibly with
+        additional known factors
+
+        -   Care must be taken to account for multiple testing issues that
+            inflate significance
+
+-   Stepwise variable selection is a common *semiautomated* method used
+
+    -   Models may lack clinical significance, and prone to overfitting
+
+-   If used for predicting future survival patterns, need to ensure robust
+    effect sizes
+
+    -   Bootstrap sampling common
+
+### Assessing the Adequacy of a Model
+
+-   Need to assess **goodness of fit** i.e., predicted outcomes of a groups
+    should be similar to observed
+
+    -   Most methods residual methods difficult to understand due to censoring
+
+        -   Residuals tend to be skewed and need smoothing functions applied for
+            interpretation
+
+    -   Overall adequacy can be assess using Cox-Snell residuals
+
+    -   Suggested methods of assessing model fits with residuals:
+
+![](images/Screen%20Shot%202021-09-23%20at%201.57.57%20PM.png)
+
+-   For parametric models, selecting the correct distribution is key
+
+    -   The shape of the hazard is the most distinguishing feature - especially
+        useful if known *a priori*
+
+        -   Weibull and Gompertz assume hazard is always increasing or
+            decreasing
+
+        -   Log-Logistic used when hazard rises to a peak then decreases, or
+            always decreases
+
+            -   Log-Normal and Generalized Gamma preferable when hazard rises to
+                a peak then decreases
+
+        -   Exponential assumes constant hazard over time
+
+        -   For all, the shape of the distributions depend on
+            **hyperparameters** (**ancillary** **parameter**) estimated from the
+            data
+
+        -   Can plot smoothed empirical hazard/cumulative hazard against model
+            estimated hazards
+
+        -   Can also plot log(-log(survival)) plots
+
+        -   AIC/BIC can compare model viability
+
+            -   Cox model produces a partial likelihood, so cannot be compared
+                to fully parametric models using AIC/BIC
+
+    -   Parametric AFT models are arguably more flexible than Cox model, so may
+        also be used when fully parametric models can't
+
+-   Simple test of model adequacy is to compare model survival predictions to KM
+    survival curve
+
+-   More formal measure compares observed and expected events in different *risk
+    groups*
+
+    -   **Predicted risk (prognostic index - PI)** are calculated for each
+        patient, risk groups are constructed by ranking PIs, and a score test is
+        applied to the differences between observed and expected events in risk
+        groups
+
+$$
+PI = b_1 x_1 + b_2 x_2 + ... + b_p x_p (\#eq:prog-index)
+$$
+
+-   Predicted survival curves can be misleading when multiple associated
+    covariates, especially when multicollinearity present
+
+    -   Fixing all other estimates to mean values ignores these correlations
+
+    -   Use PI test instead
+
+### Assessing Whether PH is Appropriate
+
+-   Empirical hazard function generally not well estimated, so better to use
+    **log(-log(survival))** plots
+
+    -   Log of cumulative hazards against log of time for assessing PH
+        assumption
+
+        -   Remember $H(t) = -\log[S(t)]$
+
+    -   Should result in parallel lines
+
+        -   May not due to lack of proportionality, *or* missing important
+            covariate\\
+
+        -   Either way, suggests inadequate model
+
+    -   Weibull or Exponential parametric models should result in straight lines
+
+-   In Cox PH framework, scaled Schoenfeld residuals test, linear correlation
+    test, and time-dependent covariate test most powerful diagnostic tests for
+    proportionality
+
+    -   First 2 assess residuals over time
+
+    -   Last assesses whether the covariate coefficients change in time i.e.,
+        nonconstant hazard ratio
+
+        -   Appealing as assesses *both* nonproportionality *and* model validity
+
+-   Can sometimes use a time-dependent covariate Cox PH model when PH assumption
+    violated
+
+    -   Interactions between covariates and log time
+
+### Assessing Whether An AFT Model is Adequate
+
+-   **Quantile-quantile (Q-Q) plots** of the times of the survival percentiles
+    should be a straight line of slope $\varphi$ passing through $(0, 0)$.
+
+    -   Good first examination, but can't account for non-linearity due to
+        inappropriate/omitted covariates
+
+-   Time-dependent covariate models can be used
+
 # References {#refs}
