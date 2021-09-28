@@ -727,18 +727,19 @@ $$
             previous events e.g. patient can be at risk of event 4, even if they
             were lost to follow up at the 2nd
 
-    -   **Independent increment model**
+-   **Independent increment model**
 
-        -   Similar to conditional, but doesn't account for the number of
-            previous events experienced by a patient
+    -   Similar to conditional, but doesn't account for the number of previous
+        events experienced by a patient
 
-            -   Conditional and marginal preferable for this reason
+        -   Conditional and marginal preferable for this reason
+
+    ![](images/Screen%20Shot%202021-09-24%20at%2011.32.56%20AM.png){width="493"}
 
 -   All entered as one patient record per event number
 
-```{=html}
 <!-- -->
-```
+
 -   All applied within usual Cox or AFT model framework
 
     -   2 exceptions from usual fitting
@@ -749,5 +750,115 @@ $$
             (competing risks) or number (recurring events)
 
             -   Interactions between covariates and strata can be assessed
+
+# Interval Censored Data - `{icenReg}` [@anderson-bergmanUsingIcenRegInterval]
+
+## Introduction
+
+-   Interval censoring occurs when a response is known up to an interval e.g.
+    tests negative at visit 1 and positive at visit 2
+
+-   When intervals are short in relation to question of interest e.g., onset of
+    T2 diabetes, bias by ignoring interval censoring minimal
+
+-   Usually use notation assuming half-open, half-closed intervals i.e.
+    $t_i \in (l_i, r_i]$ is the response interval
+
+    -   Exception when using $(t_i, t_i]$ stating that the event $i$ is
+        uncensored at time $t_i$, despite it being an undefined interval
+
+        -   Allows for left- ($l_i = 0$), right- ($r_i = \infty$), interval-,
+            uncensored ($l_i = r_i$), and other ($0 < l_i < r_i < \infty$)
+            observations
+
+-   **Turnbull's Estimator (Non-Parametric Maximum Likelihood Esimator)** is a
+    classic model allowing for interval censoring
+
+    -   Generalized KM curve
+
+        -   Solutions not in closed form, unlike KM, so computational efficient
+            algorithms required
+
+-   Cox PH and Proportional Odds models are common both semi-parametric models
+
+    -   Can convert the Cox PH survival function to PO model
+
+$$
+\begin{equation}
+\begin{split}
+S(t|\mathbf{X}, \beta) &= S_o(t)e^{\mathbf{X}^T \beta} \\
+\text{Odds}(S(t|\mathbf{X}, \beta)) &= e^{\mathbf{X}^T \beta} \ \text{Odds}(S_0(t)) \\
+\frac{S(t|\mathbf{X}, \beta)}{1 - S(t|\mathbf{X}, \beta)} &= e^{\mathbf{X}^T \beta} \frac{S_o(t)}{1 - S_0(t)}
+\end{split}
+(\#eq:prop-odds)
+\end{equation}
+$$
+
+-   Difficult to estimate regression parameters without estimating baseline
+    distribution
+
+    -   Except in Cox PH with right-censored data
+
+    -   Use Turnbull estimator to keep the model semi-parametric i.e. no need to
+        estimate distribution
+
+        -   Difficult to compute as up to $n$ baseline parameters with no closed
+            form solution
+
+-   For small datasets, intervcal censoring can result in non-concave log
+    likelihood function
+
+    -   Usually locally concave near mode for reasonable sized data
+
+## Fitting Models using `{icenReg}`
+
+### Non-Parametric Models
+
+-   For smaller datasets, use `{interval}` package instead of `icenReg::ic_np()`
+
+    -   Allows for non-parametric tests e.g. log-rank statistic
+
+-   2 lines produced for survival curve
+
+    -   NPLME not always unique for interval censored data, so everything
+        between bounds has the same likelihood
+
+### Semi-Parametric Models
+
+-   Bootstrap samples used for inference on regression parameters
+
+    -   Likely not valid for baseline distribution
+
+## Inspecting Model Fit
+
+### Examining Baseline Distribution
+
+-   Even if parametric fit used for inference (baseline distribution required),
+    such as CIs for median, semi-parametric useful for assessing model fit
+
+    -   Can't examine typical residuals or histograms with interval censored
+        data
+
+-   If semi-parametric and parametric fits similar, good indication of
+    parametric appropriateness
+
+### Examining Covariate Effect
+
+-   Both parametric and semi-parametric models make assumptions about the form
+    of the covariate effect (like GLM link function)
+
+-   PH assumption checked by crossing of KM curves
+
+    -   Adapt to NPLME curves with interval censoring
+
+    -   Can be generalized to proportional odds assumption
+
+-   Transformation check (difference in transformed survival should be constant)
+
+    -   PH = log-log transformation plots ($\log(-\log[S(t)])$)
+
+    -   PO = logit transformation plots ($\log\left[\frac{S(t)}{1-S(t)}\right]$)
+
+    -   Can be used to see if PH or PO more appropriate
 
 # References {#refs}
