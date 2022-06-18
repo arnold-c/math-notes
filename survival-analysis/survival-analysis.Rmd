@@ -738,8 +738,6 @@ $$
 
 -   All entered as one patient record per event number
 
-<!-- -->
-
 -   All applied within usual Cox or AFT model framework
 
     -   2 exceptions from usual fitting
@@ -751,7 +749,7 @@ $$
 
             -   Interactions between covariates and strata can be assessed
 
-# Interval Censored Data - `{icenReg}` [@anderson-bergmanUsingIcenRegInterval]
+# Interval Censored Data - `{icenReg}` [@anderson-bergmanUsingIcenRegInterval2020]
 
 ## Introduction
 
@@ -860,5 +858,47 @@ $$
     -   PO = logit transformation plots ($\log\left[\frac{S(t)}{1-S(t)}\right]$)
 
     -   Can be used to see if PH or PO more appropriate
+
+# Pairwise Survival Analysis of Infectious Disease Transmission Data [@kenahPairwiseSurvivalAnalysis2021]
+
+## Introduction
+
+-   Complicated by "dependent happenings"
+
+-   Consider failure times in ordered pairs $ij$ (infected $i$, susceptible $j$)
+    instead of failure times in individuals
+
+    -   **Pairwise survival analysis**
+
+-   Can write the survival function of the contact interval distribution
+    (distribution of $\tau_{ij}$)
+
+    -   This is the **secondary attack rate**
+
+    -   Call $\tau$ the **infectious age of** $i$
+
+$$
+\begin{equation}
+\begin{split}
+S_{ij}(\tau) &= \Pr(\tau_{ij} > \tau) \\
+\text{where: } \tau_{ij} &= \text{contact interval of } ij \text{ i.e., onset of infectiousness in } i \text{ to infectious contact to } j
+\end{split}
+(\#eq:cont-int-surv-func)
+\end{equation}
+$$
+
+-   We can use the survival function to write the cumulative and instantaneous
+    hazard functions
+
+$$
+\begin{equation}
+\begin{split}
+h_{ij}(\tau) &= H_{ij}^{'} \\
+ &= - \frac{S_{ij}^{'}(\tau)}{S_{ij}(\tau)} \\
+\text{where: } H_{ij}(\tau) &= - \ln[S_{ij}(\tau)]
+\end{split}
+(\#eq:cont-int-haz-func)
+\end{equation}
+$$
 
 # References {#refs}
